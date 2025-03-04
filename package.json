@@ -1,0 +1,15 @@
+{
+  "name": "abwesenheiten-count",
+  "module": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "Bun run server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "puppeteer": "^24.3.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
