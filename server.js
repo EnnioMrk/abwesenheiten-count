@@ -1,8 +1,8 @@
 import express from "express";
 import session from "express-session";
-import { Server } from "socket.io";
 import http from "http";
 import pgSession from "connect-pg-simple";
+//import { Server } from "socket.io";
 import { getDb } from "./helpers/db.js";
 import { readdir } from "fs/promises";
 import path from "path";
@@ -20,7 +20,7 @@ const db = getDb();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+//const io = new Server(server);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,11 +41,11 @@ app.use(
 );
 
 // Socket.IO connection handling
-io.on("connection", (socket) => {
+/*io.on("connection", (socket) => {
   // Get session ID from handshake
   const sessionId = socket.handshake.query.sessionId;
   console.log(`New Socket.IO connection with sessionId ${sessionId}`);
-});
+});*/
 
 // Authentication middleware
 const requireAuth = (req, res, next) => {
