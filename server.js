@@ -209,9 +209,50 @@ app.use(
   })
 );
 
+try {
+
+server.on('error', async (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(`Port ${port} is already in use. Attempting to free it...`);
+    try {
+      // Find and kill the process using the port
+      const { execSync } = require('child_process');
+      // This works for macOS and Linux. For Windows, use a different command.
+      const pids = execSync(`lsof -t -i:${port}`).toString().trim().split("\n");
+      if (pids.length > 0) {
+        for (const pid of pids) {
+        console.log(`Killing process ${pid} using port ${port}...`);
+        execSync(`kill -9 ${pid}`);
+        console.log(`Process ${pid} killed.`);
+        }
+        console.log(`Restarting server...`);  
+        // Optionally, restart the server
+        require("child_process").spawn(process.argv.shift(), process.argv, {
+          cwd: process.cwd(),
+          detached : true,
+          stdio: "inherit"
+      });
+        process.exit(1); // Let your process manager restart it
+      } else {
+        console.error('No process found using the port.');
+      }
+    } catch (killErr) {
+      console.error('Failed to kill process using the port:', killErr);
+      process.exit(1);
+    }
+  } else {
+    console.error('Server error:', err);
+    process.exit(1);
+  }
+});
+
 server.listen(port, () => {
   console.log(`🛜 Server running at http://localhost:${port}`);
 });
+} catch (error) {
+  console.error('Error starting server:', error);
+  process.exit(1); // Exit to allow a process manager to restart
+}
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
