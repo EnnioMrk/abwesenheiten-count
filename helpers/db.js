@@ -28,6 +28,8 @@ function connectDb() {
     console.log("Reconnecting to database...");
     connectDb();
   });
+
+  console.log("❇️ Connected to database");
 }
 connectDb();
 

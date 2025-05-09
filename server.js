@@ -212,3 +212,25 @@ app.use(
 server.listen(port, () => {
   console.log(`🛜 Server running at http://localhost:${port}`);
 });
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  // Optionally log the error to a file or external service here
+  require("child_process").spawn(process.argv.shift(), process.argv, {
+    cwd: process.cwd(),
+    detached : true,
+    stdio: "inherit"
+});
+  process.exit(1); // Exit to allow a process manager to restart
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  // Optionally log the error to a file or external service here
+  require("child_process").spawn(process.argv.shift(), process.argv, {
+    cwd: process.cwd(),
+    detached : true,
+    stdio: "inherit"
+});
+  process.exit(1); // Exit to allow a process manager to restart
+});
