@@ -1,0 +1,150 @@
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #121212;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 30px;
+  color: #f8f8f8;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.roulette-container {
+  position: relative;
+  width: 100%;
+  height: calc(120px * 1.2);
+  overflow: hidden;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  margin-bottom: 30px;
+}
+
+.roulette-items {
+  display: flex;
+  position: absolute;
+  left: 0;
+}
+
+.roulette-item {
+  flex: 0 0 100px;
+  height: 100px;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.roulette-item i {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.roulette-item .name {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Rarity colors */
+.common {
+  background-color: #6c757d;
+  border: 2px solid #adb5bd;
+}
+
+.rare {
+  background-color: #0d6efd;
+  border: 2px solid #6ea8fe;
+}
+
+.epic {
+  background-color: #6f42c1;
+  border: 2px solid #a370f7;
+}
+
+.legendary {
+  background-color: #ffc107;
+  border: 2px solid #ffda6a;
+  box-shadow: 0 0 15px rgba(255, 193, 7, 0.7);
+}
+
+.selector {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 120px;
+  background-color: #dc3545;
+  z-index: 10;
+  box-shadow: 0 0 10px #dc3545, 0 0 20px #dc3545;
+}
+
+.spin-btn {
+  padding: 12px 30px;
+  font-size: 18px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+}
+
+.spin-btn:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+.spin-btn:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  transform: scale(1);
+}
+
+.result {
+  margin-top: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  min-height: 36px;
+}
+
+/* Glow effects for near misses */
+.near-miss {
+  animation: glow 0.5s ease-in-out;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Scale effect for items under the selector */
+.under-selector {
+  transform: scale(1.2);
+  z-index: 5;
+}

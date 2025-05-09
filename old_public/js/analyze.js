@@ -23,36 +23,20 @@
         "text": "mail & schriftl Mic"
       },
 */
-const absenceReasons = ["K", "K+E"]; //"V", "S"
-const absenceReasonsMap = [
-  { id: 152, name: "X" },
-  { id: 138, name: "D" },
-  { id: 136, name: "A" },
-  { id: 126, name: "B" },
-  { id: 133, name: "S" },
-  { id: 147, name: "DAZ" },
-  { id: 144, name: "Nachmittag" },
-  { id: 116, name: "K" },
-  { id: 149, name: "K+E" },
-  { id: 128, name: "V" },
-];
-
-let excludeReasons = ["mail", "tel", "abgem"];
-let includeIds = [
-  Object.values(getAbsenceReasonIds(absenceReasonsMap, absenceReasons)),
-  0,
-];
+window.absenceReasons = ["K", "K+E", "undefined"]; //"V", "S"
+window.excludeReasons = ["mail", "tel", "abgem"];
 
 function capitalizeFirstLetter(val) {
   return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }
 
 function isRealAbsence(absence) {
-  return true;
-  if (!absence) return false;
-  if (excludeReasons.includes(absence.text)) return false;
-  if (includeIds && includeIds.includes(absence.absenceReasonId)) return false;
-  return true;
+  let includeIds = Object.values(
+    getAbsenceReasonIds(absenceReasonsMap, window.absenceReasons)
+  );
+  if (window.excludeReasons.includes(absence?.text)) return false;
+  if (includeIds.includes(absence?.absenceReasonId)) return true;
+  return false;
 }
 
 function getAllSubjectAbsences(data, includeExcusedByMail) {
@@ -251,4 +235,79 @@ function getRecentSubjectAbsences(data, days) {
   });
 
   return absences;
+}
+
+async function getSchoolYearStart() {
+  //https://openholidaysapi.org/SchoolHolidays?countryIsoCode=DE&subdivisionCode=DE-NI&languageIsoCode=DE&validFrom=2023-03-04&validTo=2025-03-04URL_ADDRESS
+  const date = new Date();
+  let year;
+  if (date.getMonth() > 6) {
+    year = date.getFullYear();
+  } else {
+    year = date.getFullYear() - 1;
+  }
+  const res = await fetch(
+    `https://openholidaysapi.org/SchoolHolidays?countryIsoCode=DE&subdivisionCode=DE-NI&languageIsoCode=DE&validFrom=${year}-01-01&validTo=${year}-12-30`
+  );
+  const data = await res.json();
+  return data.filter((h) => h.name[0].text == "Sommerferien")[0].endDate;
+}
+
+function getRealLessonsUntilDay(data, targetDay) {
+  // Convert target day to Date object for comparison
+  const targetDate = new Date(targetDay);
+
+  // Initialize result object to store lessons by subject
+  let totalLessons = 0;
+
+  // Process each day in the timetable data
+  if (data?.totalByDay) {
+    Object.keys(data.totalByDay).forEach((day) => {
+      if (new Date(day) > targetDate) return;
+      // Process each lesson in the day
+      totalLessons += Object.values(data.totalByDay[day])?.reduce(
+        (acc, lessonNum) => (acc += lessonNum),
+        0
+      );
+    });
+  }
+
+  return totalLessons;
+}
+
+function getAbsencesUntilDay(data, targetDay) {
+  const targetDate = new Date(targetDay);
+  let totalAbsences = 0;
+
+  if (data?.absenceTimes) {
+    data.absenceTimes.forEach((absence) => {
+      const absenceDate = new Date(
+        parseInt(String(absence.date).substring(0, 4)),
+        parseInt(String(absence.date).substring(4, 6)) - 1,
+        parseInt(String(absence.date).substring(6, 8))
+      );
+
+      if (absenceDate <= targetDate) {
+        totalAbsences++;
+      }
+    });
+  }
+
+  return totalAbsences;
+}
+
+function getDailyAbsenceTrend(absenceData, timetableData, days = 30) {
+  let absencesByDay = {};
+  for (let i = 0; i < days; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const dateString = date.toISOString().substring(0, 10);
+    absencesByDay[dateString] =
+      Math.round(
+        (100 / getRealLessonsUntilDay(timetableData, dateString)) *
+          getAbsencesUntilDay(absenceData, dateString) *
+          1000
+      ) / 1000;
+  }
+  return absencesByDay;
 }

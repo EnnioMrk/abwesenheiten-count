@@ -1,0 +1,86 @@
+/* Main Styles for Untis-Tools */
+
+/* Custom smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom focus styles */
+:focus {
+    outline: none;
+}
+
+/* Custom animations */
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Custom styles for tab focus */
+.ring-focus:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    outline: none;
+}
+
+/* Custom transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Custom hover effects for feature cards */
+.bg-gray-50:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Navigation active link styling */
+.border-b-2 {
+    transition: border-color 0.2s ease;
+}
+
+/* Form element focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Button hover effect */
+.hover\:bg-blue-700:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* Mobile menu animation */
+#mobile-menu {
+    transition: all 0.3s ease;
+}
+
+/* Prevent horizontal scrolling on mobile */
+body {
+    overflow-x: hidden;
+}
+
+/* Improve vertical rhythm */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-bottom: 0.5rem;
+}

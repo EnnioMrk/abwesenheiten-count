@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login - Absence Analysis</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            .spinner {
+                width: 24px;
+                height: 24px;
+                border: 3px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top-color: #fff;
+                animation: spin 0.8s ease-in-out infinite;
+                display: none;
+                opacity: 0;
+                transition: opacity 0.2s ease-in-out;
+            }
+            .spinner.visible {
+                opacity: 1;
+            }
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+            .error-message {
+                display: none;
+                color: #ef4444;
+                font-size: 0.875rem;
+                margin-top: 0.5rem;
+                text-align: center;
+                opacity: 0;
+                transform: translateY(-10px);
+                transition: all 0.3s ease-in-out;
+            }
+            .error-message.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            .button-content {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                transition: opacity 0.2s ease-in-out;
+            }
+            .button-content.loading {
+                opacity: 0.7;
+            }
+            .login-button {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease-in-out;
+            }
+            .login-button:disabled {
+                cursor: not-allowed;
+                opacity: 0.8;
+            }
+            .login-button::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.2),
+                    transparent
+                );
+                transition: 0.5s;
+            }
+            .login-button.loading::after {
+                left: 100%;
+            }
+        </style>
+    </head>
+    <body class="bg-gray-100">
+        <div
+            id="loginForm"
+            class="min-h-screen flex items-center justify-center"
+        >
+            <div class="bg-white p-8 rounded-lg shadow-md w-96">
+                <h1 class="text-2xl font-bold mb-6 text-center">Login</h1>
+                <p class="text-sm text-center text-gray-600 mb-6">
+                    New user?
+                    <a
+                        href="/register"
+                        class="text-indigo-600 hover:text-indigo-500"
+                        >Register here</a
+                    >
+                </p>
+                <form id="login" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700"
+                            >Email</label
+                        >
+                        <input
+                            type="text"
+                            id="email"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-0 appearance-none"
+                            style="-webkit-appearance: none"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700"
+                            >Password</label
+                        >
+                        <input
+                            type="password"
+                            id="password"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-0 appearance-none"
+                            style="-webkit-appearance: none"
+                            required
+                        />
+                    </div>
+                    <div class="relative">
+                        <button
+                            type="submit"
+                            id="loginButton"
+                            class="login-button w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                            <div class="button-content">
+                                <span id="loginText">Login</span>
+                                <div id="loginSpinner" class="spinner"></div>
+                            </div>
+                        </button>
+                        <p id="errorMessage" class="error-message"></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            const loginForm = document.getElementById('login');
+            const loginButton = document.getElementById('loginButton');
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const buttonContent = loginButton.querySelector('.button-content');
+
+            function setLoading(isLoading) {
+                loginButton.disabled = isLoading;
+                loginButton.classList.toggle('loading', isLoading);
+                buttonContent.classList.toggle('loading', isLoading);
+                loginSpinner.style.display = isLoading ? 'block' : 'none';
+                setTimeout(() => {
+                    loginSpinner.classList.toggle('visible', isLoading);
+                }, 10);
+                errorMessage.classList.remove('visible');
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.classList.add('visible');
+                }, 10);
+            }
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                setLoading(true);
+
+                try {
+                    const response = await fetch('/api/user/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        window.location.href = '/dashboard';
+                    } else {
+                        showError(data.error || 'Login failed. Please check your credentials.');
+                    }
+                } catch (error) {
+                    showError('An error occurred. Please try again.');
+                } finally {
+                    setLoading(false);
+                }
+            });
+        </script>
+    </body>
+</html>

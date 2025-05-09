@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Register - Absence Analysis</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- Remove the PayPal SDK and replace with Braintree -->
+        <script src="https://js.braintreegateway.com/web/3.88.0/js/client.min.js"></script>
+        <script src="https://js.braintreegateway.com/web/3.88.0/js/paypal-checkout.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+    </head>
+    <body class="bg-gray-100">
+        <div
+            class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+        >
+            <div class="max-w-md w-full space-y-8">
+                <div>
+                    <h2
+                        class="mt-6 text-center text-3xl font-extrabold text-gray-900"
+                    >
+                        Create your account
+                    </h2>
+                    <p class="mt-2 text-center text-sm text-gray-600">
+                        Or
+                        <a
+                            href="/login/"
+                            class="font-medium text-indigo-600 hover:text-indigo-500"
+                            >sign in to your existing account</a
+                        >
+                    </p>
+                </div>
+
+                <!-- Step indicators -->
+                <div class="flex justify-center mb-8">
+                    <ol class="flex items-center w-full">
+                        <li
+                            id="step-indicator-1"
+                            class="flex items-center text-blue-600 font-medium"
+                        >
+                            <span
+                                class="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full border-2 border-blue-600"
+                            >
+                                1
+                            </span>
+                            <span class="ms-2">Info</span>
+                            <svg
+                                class="w-4 h-4 ms-2 rtl:rotate-180"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 12 10"
+                            >
+                                <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="m1 5 4 4 6-8"
+                                />
+                            </svg>
+                        </li>
+                        <li
+                            id="step-indicator-2"
+                            class="flex items-center text-gray-500"
+                        >
+                            <span
+                                class="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full border border-gray-500 ms-5"
+                            >
+                                2
+                            </span>
+                            <span class="ms-2">Plan</span>
+                            <svg
+                                class="w-4 h-4 ms-2 rtl:rotate-180"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 12 10"
+                            >
+                                <path
+                                    stroke="currentColor"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="m1 5 4 4 6-8"
+                                />
+                            </svg>
+                        </li>
+                        <li
+                            id="step-indicator-3"
+                            class="flex items-center text-gray-500"
+                        >
+                            <span
+                                class="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full border border-gray-500 ms-5"
+                            >
+                                3
+                            </span>
+                            <span class="ms-2">Payment</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Step 1: User Information Form -->
+                <div id="registration-step-1" class="mt-8 space-y-6">
+                    <div class="rounded-md shadow-sm -space-y-px">
+                        <div class="mb-4">
+                            <label
+                                for="email"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                                >Email Address</label
+                            >
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                required
+                                class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                placeholder="Enter your email address"
+                            />
+                            <p
+                                id="email-validation-message"
+                                class="mt-1 text-xs text-red-500 hidden"
+                            ></p>
+                        </div>
+                        <div class="mb-4 flex space-x-4">
+                            <div class="w-1/2">
+                                <label
+                                    for="first-name"
+                                    class="block text-sm font-medium text-gray-700 mb-1"
+                                    >First Name</label
+                                >
+                                <input
+                                    id="first-name"
+                                    name="first-name"
+                                    type="text"
+                                    required
+                                    class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    placeholder="First name"
+                                />
+                            </div>
+                            <div class="w-1/2">
+                                <label
+                                    for="last-name"
+                                    class="block text-sm font-medium text-gray-700 mb-1"
+                                    >Last Name</label
+                                >
+                                <input
+                                    id="last-name"
+                                    name="last-name"
+                                    type="text"
+                                    required
+                                    class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    placeholder="Last name"
+                                />
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label
+                                for="password"
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                                >Password</label
+                            >
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                required
+                                class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                placeholder="Choose a secure password"
+                            />
+
+                            <!-- Password strength meter -->
+                            <div class="mt-2">
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span>Password Strength:</span>
+                                    <span id="password-strength-text"
+                                        >None</span
+                                    >
+                                </div>
+                                <div
+                                    class="w-full bg-gray-200 rounded-full h-2"
+                                >
+                                    <div
+                                        id="password-strength-meter"
+                                        class="h-2 rounded-full bg-gray-300"
+                                        style="width: 0%"
+                                    ></div>
+                                </div>
+                            </div>
+
+                            <!-- Password feedback from zxcvbn -->
+                            <div
+                                id="password-feedback"
+                                class="mt-2 text-xs text-gray-700"
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button
+                            id="step1-continue"
+                            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Plan Selection -->
+                <div id="registration-step-2" class="mt-8 space-y-6 hidden">
+                    <div class="bg-white rounded-md shadow p-4 mb-4">
+                        <h3 class="text-lg font-medium mb-4">
+                            Choose your plan
+                        </h3>
+
+                        <div class="space-y-4">
+                            <!-- Basic Plan -->
+                            <div
+                                class="flex items-center p-3 border rounded-md hover:bg-gray-50"
+                                onclick="selectPlan('basic', 1)"
+                            >
+                                <input
+                                    type="radio"
+                                    id="plan-basic"
+                                    name="plan"
+                                    value="basic"
+                                    class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                />
+                                <label
+                                    for="plan-basic"
+                                    class="ml-3 flex flex-col cursor-pointer w-full"
+                                >
+                                    <span
+                                        class="block text-md font-medium text-gray-900"
+                                        >Basic</span
+                                    >
+                                    <span class="block text-sm text-gray-500"
+                                        >All essentials for getting
+                                        started</span
+                                    >
+                                    <div class="mt-1">
+                                        <span
+                                            class="text-lg font-bold text-gray-900"
+                                            >1€</span
+                                        >
+                                        <span class="text-sm text-gray-500"
+                                            >/month</span
+                                        >
+                                        <span
+                                            class="ml-2 inline-block text-sm text-green-600"
+                                            ><span class="line-through"
+                                                >3€</span
+                                            >
+                                            Sale</span
+                                        >
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Standard Plan -->
+                            <div
+                                class="flex items-center p-3 border rounded-md hover:bg-gray-50"
+                                onclick="selectPlan('standard', 2)"
+                            >
+                                <input
+                                    type="radio"
+                                    id="plan-standard"
+                                    name="plan"
+                                    value="standard"
+                                    class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                />
+                                <label
+                                    for="plan-standard"
+                                    class="ml-3 flex flex-col cursor-pointer w-full"
+                                >
+                                    <span
+                                        class="block text-md font-medium text-gray-900"
+                                        >Standard</span
+                                    >
+                                    <span class="block text-sm text-gray-500"
+                                        >Advanced tools for deeper
+                                        insights</span
+                                    >
+                                    <div class="mt-1">
+                                        <span
+                                            class="text-lg font-bold text-gray-900"
+                                            >2€</span
+                                        >
+                                        <span class="text-sm text-gray-500"
+                                            >/month</span
+                                        >
+                                        <span
+                                            class="ml-2 inline-block text-sm text-green-600"
+                                            ><span class="line-through"
+                                                >5€</span
+                                            >
+                                            Sale</span
+                                        >
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Premium Plan -->
+                            <div
+                                class="flex items-center p-3 border rounded-md border-blue-200 bg-blue-50 hover:bg-blue-100"
+                                onclick="selectPlan('premium', 3)"
+                            >
+                                <input
+                                    type="radio"
+                                    id="plan-premium"
+                                    name="plan"
+                                    value="premium"
+                                    class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                                />
+                                <label
+                                    for="plan-premium"
+                                    class="ml-3 flex flex-col cursor-pointer w-full"
+                                >
+                                    <span
+                                        class="block text-md font-medium text-gray-900"
+                                        >Premium</span
+                                    >
+                                    <span class="block text-sm text-gray-500"
+                                        >Full access to all premium
+                                        features</span
+                                    >
+                                    <div class="mt-1">
+                                        <span
+                                            class="text-lg font-bold text-gray-900"
+                                            >3€</span
+                                        >
+                                        <span class="text-sm text-gray-500"
+                                            >/month</span
+                                        >
+                                        <span
+                                            class="ml-2 inline-block text-sm text-green-600"
+                                            ><span class="line-through"
+                                                >10€</span
+                                            >
+                                            Sale</span
+                                        >
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between">
+                        <button
+                            id="step2-back"
+                            class="group relative flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            Back
+                        </button>
+                        <button
+                            id="step2-continue"
+                            class="group relative flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            disabled
+                        >
+                            Continue to Payment
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Payment -->
+                <div id="registration-step-3" class="mt-8 space-y-6 hidden">
+                    <div class="bg-white rounded-md shadow p-4">
+                        <h3 class="text-lg font-medium mb-4">
+                            Complete your purchase
+                        </h3>
+                        <div class="mb-4 p-3 border rounded-md bg-gray-50">
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-gray-700"
+                                    >Selected plan:</span
+                                >
+                                <span
+                                    id="selected-plan-name"
+                                    class="text-sm font-medium text-gray-900"
+                                    >-</span
+                                >
+                            </div>
+                            <div class="flex justify-between mt-1">
+                                <span class="text-sm font-medium text-gray-700"
+                                    >Price:</span
+                                >
+                                <span
+                                    id="selected-plan-price"
+                                    class="text-sm font-medium text-gray-900"
+                                    >-</span
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Loading indicator -->
+                        <div
+                            id="payment-loading"
+                            class="py-4 text-center hidden"
+                        >
+                            <div
+                                class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"
+                            ></div>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Loading payment options...
+                            </p>
+                        </div>
+
+                        <!-- Payment processing indicator -->
+                        <div
+                            id="payment-processing"
+                            class="py-4 text-center hidden"
+                        >
+                            <div
+                                class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-green-500 border-t-transparent"
+                            ></div>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Processing your subscription...
+                            </p>
+                        </div>
+
+                        <div id="paypal-button-container" class="mt-4"></div>
+                    </div>
+
+                    <div class="flex justify-start">
+                        <button
+                            id="step3-back"
+                            class="group relative flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            Back to Plans
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                    id="error-message"
+                    class="text-red-600 text-sm text-center hidden"
+                ></div>
+            </div>
+        </div>
+
+        <script src="./js/password-validator.js"></script>
+        <script src="./js/registration.js"></script>
+    </body>
+</html>

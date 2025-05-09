@@ -1,4 +1,4 @@
-let rawData;
+let absenceData;
 let charts = {
   sevenDays: null,
   fourteenDays: null,
@@ -6,6 +6,7 @@ let charts = {
   allTime: null,
   type: null,
   overallTrends: null,
+  dailyTrend: null,
 };
 
 async function loadDashboard() {
@@ -26,22 +27,61 @@ async function loadDashboard() {
       allTime: null,
       type: null,
       overallTrends: null,
+      dailyTrend: null,
     };
 
-    const response = await fetch("/api/data/absences");
-    rawData = await response.json();
+    const absenceResponse = await fetch("/api/data/absences");
+    absenceData = await absenceResponse.json();
+
+    // Fetch lessons data for total lesson count
+    const lessonsResponse = await fetch("/api/data/lessons");
+    const lessonsData = await lessonsResponse.json();
+
+    // Calculate total lessons from lessons data
+    let totalLessons = 0;
+    Object.values(lessonsData.total).forEach((monthData) => {
+      Object.values(monthData).forEach((count) => {
+        totalLessons += count;
+      });
+    });
+
+    // Calculate and update total absence rate
+    const totalAbsences = absenceData.absenceTimes.filter(isRealAbsence).length;
+    const totalAbsenceRate =
+      totalLessons > 0 ? totalAbsences / totalLessons : 0;
+    const maxRate = 1 / 3;
+    const percentage = Math.min((totalAbsenceRate / maxRate) * 100, 100);
+
+    // Determine color based on percentage
+    let progressColor;
+    if (percentage <= 30) progressColor = "bg-green-500";
+    else if (percentage <= 60) progressColor = "bg-yellow-500";
+    else if (percentage <= 85) progressColor = "bg-orange-500";
+    else progressColor = "bg-red-500";
+
+    // Update progress bar
+    const absenceRateBar = document.getElementById("absenceRateBar");
+    const absenceRateText = document.getElementById("absenceRateText");
+
+    absenceRateBar.className = `${progressColor} h-4 rounded-full`;
+    absenceRateBar.style.width = `${percentage}%`;
+    absenceRateText.textContent = `Total Absence Rate: ${(
+      totalAbsenceRate * 100
+    ).toFixed(1)}% / Maximum: ${(maxRate * 100).toFixed(1)}%`;
 
     // Process the data for different time periods
     const data = {
-      sevenDays: getRecentSubjectAbsences(rawData, 7),
-      fourteenDays: getRecentSubjectAbsences(rawData, 14),
-      month: getRecentSubjectAbsences(rawData, 30),
-      allTime: getAllSubjectAbsences(rawData),
-      overallTrends: getAllAbsencesByMonth(rawData),
+      sevenDays: getRecentSubjectAbsences(absenceData, 7),
+      fourteenDays: getRecentSubjectAbsences(absenceData, 14),
+      month: getRecentSubjectAbsences(absenceData, 30),
+      allTime: getAllSubjectAbsences(absenceData),
+      overallTrends: getAllAbsencesByMonth(absenceData),
+      dailyTrend: getDailyAbsenceTrend(absenceData, lessonsData, 150),
     };
 
     createCharts(data);
     createOverallTrendsChart(data.overallTrends);
+    createDailyTrendChart(data.dailyTrend);
   } catch (error) {
     console.error("Error loading dashboard:", error);
   }
@@ -99,7 +139,7 @@ function createCharts(data) {
   // Absence Types Chart
   const typeCtx = document.getElementById("typeChart").getContext("2d");
 
-  let excusedAbscencesNum = rawData.absenceTimes.reduce((acc, curr) => {
+  let excusedAbscencesNum = absenceData.absenceTimes.reduce((acc, curr) => {
     if (curr.excused) return acc + 1;
     else return acc;
   }, 0);
@@ -107,7 +147,7 @@ function createCharts(data) {
   // Update type title with totals
   document.getElementById(
     "typeTitle"
-  ).textContent = `Absence Types (${rawData.absenceTimes.length})`;
+  ).textContent = `Absence Types (${absenceData.absenceTimes.length})`;
 
   charts.type = new Chart(typeCtx, {
     type: "pie",
@@ -117,7 +157,7 @@ function createCharts(data) {
         {
           data: [
             excusedAbscencesNum,
-            rawData.absenceTimes.length - excusedAbscencesNum,
+            absenceData.absenceTimes.length - excusedAbscencesNum,
           ],
           backgroundColor: [
             "rgba(99, 102, 241, 0.5)",
@@ -205,7 +245,7 @@ function createTimeChart(canvasId, data, label) {
 function updateMonthlyTrends(subject) {
   console.log(`Updating monthly trends for ${subject}`);
   selectedSubject = subject;
-  const monthlyData = getSubjectAbsencesByMonth(rawData, subject);
+  const monthlyData = getSubjectAbsencesByMonth(absenceData, subject);
 
   // Convert month numbers to names
   const monthNames = {
@@ -396,6 +436,85 @@ chartsGrid.querySelectorAll(".bg-white").forEach((container) => {
     }
   });
 });
+
+function createDailyTrendChart(dailyTrendData) {
+  // Get the dates and percentages from the data
+  const dates = Object.keys(dailyTrendData).reverse();
+  const percentages = Object.values(dailyTrendData).reverse();
+
+  // Format dates to be more readable (e.g., "Jan 15")
+  const formattedDates = dates.map((date) => {
+    const d = new Date(date);
+    return `${d.getDate()} ${d.toLocaleString("default", { month: "short" })}`;
+  });
+
+  const ctx = document.getElementById("dailyTrendChart").getContext("2d");
+  charts.dailyTrend = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: formattedDates,
+      datasets: [
+        {
+          label: "Cumulative Absence %",
+          data: percentages,
+          borderColor: "rgb(99, 102, 241)",
+          backgroundColor: "rgba(99, 102, 241, 0.1)",
+          tension: 0.1,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          left: 10,
+          right: 10,
+          top: 20,
+          bottom: 40,
+        },
+      },
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: "Cumulative Absence %",
+          },
+          ticks: {
+            callback: function (value) {
+              return Math.round(value * 100) / 100 + "%";
+            },
+          },
+        },
+        x: {
+          title: {
+            display: true,
+            text: "Date",
+          },
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45,
+            autoSkip: true,
+            maxTicksLimit: 15,
+            font: {
+              size: 10,
+            },
+          },
+        },
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function (context) {
+              return `Absence: ${context.parsed.y}%`;
+            },
+          },
+        },
+      },
+    },
+  });
+}
 
 // Load dashboard when the page loads
 loadDashboard();

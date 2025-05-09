@@ -6,6 +6,9 @@
     <title>Absence Analysis Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/analyze.js" async></script>
+    <script src="/js/settings.js" async></script>
+    <script src="/dashboard/js/index.js" defer></script>
   </head>
   <body class="bg-gray-100">
     <div id="dashboard" class="min-h-screen bg-gray-100 p-8">
@@ -13,7 +16,7 @@
         <h1 class="text-2xl font-bold">Dashboard</h1>
         <div class="flex items-center gap-4">
           <a
-            href="/recommender.html"
+            href="/recommender"
             class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
             Absence Recommender
@@ -31,6 +34,21 @@
             Logout
           </button>
         </div>
+      </div>
+
+      <!-- Total Absence Rate Progress Bar -->
+      <div id="totalAbsenceRate" class="mb-6">
+        <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+          <div
+            id="absenceRateBar"
+            class="h-4 rounded-full"
+            style="width: 0%"
+          ></div>
+        </div>
+        <div
+          id="absenceRateText"
+          class="text-sm text-gray-600 text-center"
+        ></div>
       </div>
 
       <!-- Settings Modal -->
@@ -122,12 +140,14 @@
           </h2>
           <canvas id="typeChart"></canvas>
         </div>
+        <div class="bg-white p-6 rounded-lg shadow-md h-96" draggable="true">
+          <h2 class="text-xl font-semibold mb-4" id="dailyTrendTitle">
+            Daily Trend (School Year)
+          </h2>
+          <canvas id="dailyTrendChart"></canvas>
+        </div>
       </div>
     </div>
-
-    <script src="analyze.js"></script>
-    <script src="settings.js"></script>
-    <script src="dashboard.js"></script>
   </body>
 </html>
 
@@ -152,41 +172,5 @@
     } catch (error) {
       console.error("Error during logout:", error);
     }
-  }
-  // Settings Modal Functions
-  function openSettings() {
-    const modal = document.getElementById("settingsModal");
-    const excludeReasonsInput = document.getElementById("excludeReasons");
-    const absenceReasonsInput = document.getElementById("absenceReasons");
-
-    excludeReasonsInput.value = settings.excludeReasons.join(", ");
-    absenceReasonsInput.value = settings.absenceReasons.join(", ");
-
-    modal.classList.remove("hidden");
-  }
-
-  function closeSettings() {
-    const modal = document.getElementById("settingsModal");
-    modal.classList.add("hidden");
-  }
-
-  function saveSettingsChanges() {
-    const excludeReasonsInput = document.getElementById("excludeReasons");
-    const absenceReasonsInput = document.getElementById("absenceReasons");
-
-    const excludeReasons = excludeReasonsInput.value
-      .split(",")
-      .map((r) => r.trim())
-      .filter((r) => r);
-    const absenceReasons = absenceReasonsInput.value
-      .split(",")
-      .map((r) => r.trim())
-      .filter((r) => r);
-
-    updateExcludeReasons(excludeReasons);
-    updateAbsenceReasons(absenceReasons);
-
-    closeSettings();
-    loadDashboard(); // Reload dashboard with new settings
   }
 </script>

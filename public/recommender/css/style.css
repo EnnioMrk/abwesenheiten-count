@@ -1,0 +1,13 @@
+/* Basic styling for the absence recommender */
+body {
+  font-family: "Inter", sans-serif; /* Match dashboard font if possible */
+}
+
+/* Add any specific styles needed for the chart or recommendation text */
+#absenceChart {
+  max-height: 500px; /* Adjust as needed */
+}
+
+#recommendationText {
+  line-height: 1.6;
+}

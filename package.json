@@ -1,15 +1,22 @@
 {
-  "name": "abwesenheiten-count",
-  "module": "index.js",
-  "type": "module",
-  "scripts": {
-    "start": "Bun run server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "puppeteer": "^24.3.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
-  }
+    "name": "abwesenheiten-count",
+    "module": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "Bun run server.js",
+        "dev": "Bun --hot run server.js",
+        "build": "bun build ./server.js --outdir ./build"
+    },
+    "dependencies": {
+        "braintree": "^3.29.0",
+        "connect-pg-simple": "^10.0.0",
+        "express": "^4.18.2",
+        "express-session": "^1.17.3",
+        "pg": "^8.14.0",
+        "puppeteer": "^24.3.0",
+        "puppeteer-extra": "^3.3.6",
+        "puppeteer-extra-plugin-stealth": "^2.11.2",
+        "vite": "^6.2.1",
+        "webuntis": "^2.2.1"
+    }
 }

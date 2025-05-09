@@ -1,0 +1,3 @@
+#qr-reader.flip > video {
+    transform: scaleX(-1);
+}
