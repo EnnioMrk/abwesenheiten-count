@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login - Absence Analysis</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            .spinner {
+                width: 24px;
+                height: 24px;
+                border: 3px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top-color: #fff;
+                animation: spin 0.8s ease-in-out infinite;
+                display: none;
+                opacity: 0;
+                transition: opacity 0.2s ease-in-out;
+            }
+            .spinner.visible {
+                opacity: 1;
+            }
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+            .error-message {
+                display: none;
+                color: #ef4444;
+                font-size: 0.875rem;
+                margin-top: 0.5rem;
+                text-align: center;
+                opacity: 0;
+                transform: translateY(-10px);
+                transition: all 0.3s ease-in-out;
+            }
+            .error-message.visible {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            .button-content {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                transition: opacity 0.2s ease-in-out;
+            }
+            .button-content.loading {
+                opacity: 0.7;
+            }
+            .login-button {
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease-in-out;
+            }
+            .login-button:disabled {
+                cursor: not-allowed;
+                opacity: 0.8;
+            }
+            .login-button::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.2),
+                    transparent
+                );
+                transition: 0.5s;
+            }
+            .login-button.loading::after {
+                left: 100%;
+            }
+            .password-toggle {
+                position: absolute;
+                right: 12px;
+                top: 0;
+                bottom: 0;
+                margin: auto 0;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 32px;
+                padding: 0;
+                color: #6b7280;
+                background: none;
+                border: none;
+                cursor: pointer;
+                transition: color 0.2s ease-in-out;
+                pointer-events: auto;
+            }
+            .password-toggle:hover {
+                color: #4b5563;
+            }
+            .password-input-container {
+                position: relative;
+            }
+            .password-input-container input {
+                padding-right: 44px;
+            }
+        </style>
+    </head>
+    <body class="bg-gray-100">
+        <div
+            id="loginForm"
+            class="min-h-screen flex items-center justify-center"
+        >
+            <div class="bg-white p-8 rounded-lg shadow-md w-96">
+                <h1 class="text-2xl font-bold mb-6 text-center">Login</h1>
+                <form id="login" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700"
+                            >Email</label
+                        >
+                        <input
+                            type="text"
+                            id="email"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-0 appearance-none"
+                            style="-webkit-appearance: none"
+                            required
+                        />
+                    </div>
+                    <div class="password-input-container">
+                        <label class="block text-sm font-medium text-gray-700"
+                            >Password</label
+                        >
+                        <input
+                            type="password"
+                            id="password"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-0 appearance-none pr-10"
+                            style="-webkit-appearance: none"
+                            required
+                        />
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="password-toggle h-min mb-0.5"
+                            aria-label="Toggle password visibility"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                class="w-5 h-5"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                                />
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button
+                            type="submit"
+                            id="loginButton"
+                            class="login-button w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                            <div class="button-content">
+                                <span id="loginText">Login</span>
+                                <div id="loginSpinner" class="spinner"></div>
+                            </div>
+                        </button>
+                        <p id="errorMessage" class="error-message"></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            const loginForm = document.getElementById('login');
+            const loginButton = document.getElementById('loginButton');
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const errorMessage = document.getElementById('errorMessage');
+            const buttonContent = loginButton.querySelector('.button-content');
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+
+            function setLoading(isLoading) {
+                loginButton.disabled = isLoading;
+                loginButton.classList.toggle('loading', isLoading);
+                buttonContent.classList.toggle('loading', isLoading);
+                loginSpinner.style.display = isLoading ? 'block' : 'none';
+                setTimeout(() => {
+                    loginSpinner.classList.toggle('visible', isLoading);
+                }, 10);
+                errorMessage.classList.remove('visible');
+            }
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.classList.add('visible');
+                }, 10);
+            }
+
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                
+                // Update the icon
+                togglePassword.innerHTML = type === 'password' 
+                    ? `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>`
+                    : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    </svg>`;
+            });
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+
+                setLoading(true);
+
+                try {
+                    const response = await fetch('/api/user/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        window.location.href = '/dashboard';
+                    } else {
+                        showError(data.error || 'Login failed. Please check your credentials.');
+                    }
+                } catch (error) {
+                    showError('An error occurred. Please try again.');
+                } finally {
+                    setLoading(false);
+                }
+            });
+        </script>
+    </body>
+</html>

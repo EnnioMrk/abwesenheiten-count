@@ -48,6 +48,12 @@ app.use(
   })
 );
 
+//log all requests
+app.use((req, res, next) => {
+  console.log(`ℹ️ ${req.session.user?`${req.session.user.first_name} ${req.session.user.last_name} `:` `}${req.method} ${req.url}`);
+  next();
+});
+
 // Socket.IO connection handling
 /*io.on("connection", (socket) => {
   // Get session ID from handshake
@@ -84,7 +90,7 @@ app.use((req, res, next) => {
   }
   // Allow access to static assets without authentication
   if (
-    req.session.user &&
+    req.session.user?.untisUsername &&
     ["/untis-login", "/login", "/register"].some((route) =>
       path.includes(route)
     )
