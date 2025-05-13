@@ -18,6 +18,14 @@ const port = process.env.PORT || 3000;
 
 const db = getDb();
 
+try {
+  await db.query('SELECT 1');
+  console.log('✅ Database connection successful');
+} catch (err) {
+  console.error('❌ Failed to connect to the database:', err);
+  process.exit(1);
+}
+
 const app = express();
 const server = http.createServer(app);
 //const io = new Server(server);
