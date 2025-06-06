@@ -2,7 +2,6 @@ import { getAllLessonCount } from "../../../helpers/untis";
 
 export default async function getToday(req, res) {
   const email = req.session.user.email;
-  process.stdout.write(`➡️ Getting all lessons for ${email}`);
   const lessonDataByDate = await getAllLessonCount(email);
 
   if (!lessonDataByDate) {
@@ -30,6 +29,5 @@ export default async function getToday(req, res) {
     }
   }
 
-  console.log(' ✅');  
   res.json(aggregatedData);
 }

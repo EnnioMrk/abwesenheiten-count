@@ -8,59 +8,95 @@ let widgetConfigs;
 const getNewOnFetch = true;
 
 export async function loadWidgets() {
-  widgets = await getWidgets();
+  try {
+    widgets = await getWidgets();
 
-  const files = readdirSync("./widgets");
+    const files = readdirSync("./widgets");
 
-  widgetFolders = files.filter((file) => {
-    return statSync(`./widgets/${file}`).isDirectory();
-  });
+    widgetFolders = files.filter((file) => {
+      try {
+        return statSync(`./widgets/${file}`).isDirectory();
+      } catch (error) {
+        console.error(
+          `💥 Error checking widget directory ${file}:`,
+          error.message
+        );
+        return false;
+      }
+    });
 
-  widgets.forEach((widget) => {
-    if (!widgetFolders.includes(widget.id)) {
-      throw new Error(`Widget ${widget.id} not found in widgets folder`);
-      return;
+    for (const widget of widgets) {
+      if (!widgetFolders.includes(widget.id)) {
+        console.error(`❌ Widget ID ${widget.id} not found in widget folders`);
+        continue;
+      }
     }
-  });
 
-  console.log(
-    `✅Loaded widgets: ${widgets.map((widget) => widget.id).join(", ")}`
-  );
+    console.log(
+      `✅ Loaded widgets: ${widgets.map((widget) => widget.id).join(", ")}`
+    );
 
-  widgetConfigs = widgets;
+    widgetConfigs = widgets;
 
-  //convert widgets array into object with widget id as key
-  widgets = widgets.reduce((acc, widget) => {
-    acc[widget.id] = { id: widget.id, minPlan: widget.minPlan };
-    return acc;
-  }, {});
+    //convert widgets array into object with widget id as key
+    widgets = widgets.reduce((acc, widget) => {
+      acc[widget.id] = { id: widget.id, minPlan: widget.minPlan };
+      return acc;
+    }, {});
 
-  await widgetFolders.forEach(async (widgetFolder) => {
-    //load index.html, index.js into widgets
-    let html = await Bun.file(`./widgets/${widgetFolder}/index.html`).text();
-    let js = await Bun.file(`./widgets/${widgetFolder}/index.js`).text();
+    for (const widgetFolder of widgetFolders) {
+      try {
+        //load index.html, index.js into widgets
+        let html = await Bun.file(
+          `./widgets/${widgetFolder}/index.html`
+        ).text();
+        let js = await Bun.file(`./widgets/${widgetFolder}/index.js`).text();
 
-    widgets[widgetFolder].html = html;
-    widgets[widgetFolder].js = js;
-  });
+        widgets[widgetFolder].html = html;
+        widgets[widgetFolder].js = js;
+      } catch (error) {
+        console.error(
+          `💥 Error loading widget ${widgetFolder}:`,
+          error.message
+        );
+        // Remove the widget from the list if it fails to load
+        delete widgets[widgetFolder];
+      }
+    }
+  } catch (error) {
+    console.error("💥 Error loading widgets:", error.message);
+    throw error;
+  }
 }
 
 export async function handleWidgetReq(req, res) {
-  const id = req.params.id;
-  if (!widgets[id]) {
-    res.status(404).send("Widget not found");
-    return;
-  }
-  if (getNewOnFetch) {
-    //load this widget again
-    widgets[id] = {
-      ...widgets[id],
-      html: await Bun.file(`./widgets/${id}/index.html`).text(),
-      js: await Bun.file(`./widgets/${id}/index.js`).text(),
-    };
-  }
+  try {
+    const id = req.params.id;
+    if (!widgets[id]) {
+      res.status(404).json({ error: "Widget not found" });
+      return;
+    }
 
-  res.send((({ minPlan, ...o }) => o)(widgets[id]));
+    if (getNewOnFetch) {
+      try {
+        //load this widget again
+        widgets[id] = {
+          ...widgets[id],
+          html: await Bun.file(`./widgets/${id}/index.html`).text(),
+          js: await Bun.file(`./widgets/${id}/index.js`).text(),
+        };
+      } catch (error) {
+        console.error(`💥 Error reloading widget ${id}:`, error.message);
+        res.status(500).json({ error: "Failed to reload widget" });
+        return;
+      }
+    }
+
+    res.send((({ minPlan, ...o }) => o)(widgets[id]));
+  } catch (error) {
+    console.error("💥 Error handling widget request:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
 }
 
 export async function getWidgetsConfig(req, res) {

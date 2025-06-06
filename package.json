@@ -1,18 +1,45 @@
 {
     "name": "abwesenheiten-count",
-    "module": "index.js",
     "type": "module",
     "scripts": {
-        "start": "Bun run server.js",
-        "dev": "Bun --hot run server.js",
-        "build": "bun build ./server.js --outdir ./build"
+        "start": "bun run server.js",
+        "dev": "bun --hot run server.js",
+        "build": "bun run build.js all",
+        "build:server": "bun run build.js server",
+        "build:client": "bun run build.js client",
+        "build:html": "bun run build.js html",
+        "build:clean": "bun run build.js clean",
+        "build:watch": "bun run build.js watch",
+        "build:prod": "NODE_ENV=production bun run build.js all"
     },
     "dependencies": {
         "braintree": "^3.29.0",
+        "chartist": "^1.3.1",
         "connect-pg-simple": "^10.0.0",
+        "core-js": "^3.42.0",
         "express": "^4.18.2",
         "express-session": "^1.17.3",
+        "lru-cache": "^11.1.0",
         "pg": "^8.14.0",
         "webuntis": "^2.2.1"
+    },
+    "devDependencies": {
+        "browserify-zlib": "^0.2.0",
+        "buffer": "^5.5.0||^6.0.0",
+        "crypto-browserify": "^3.12.1",
+        "css-loader": "^7.1.2",
+        "glob": "^11.0.2",
+        "html-webpack-plugin": "^5.6.3",
+        "mini-css-extract-plugin": "^2.9.2",
+        "parcel": "^2.15.2",
+        "path-browserify": "^1.0.1",
+        "process": "^0.11.10",
+        "querystring-es3": "^0.2.1",
+        "stream-browserify": "^3.0.0",
+        "stream-http": "^3.2.0",
+        "string_decoder": "^1.3.0",
+        "style-loader": "^4.0.0",
+        "url": "^0.11.4",
+        "util": "^0.12.5"
     }
 }

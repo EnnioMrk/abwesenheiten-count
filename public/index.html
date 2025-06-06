@@ -1,686 +1,820 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Untis-Tools | Professionelle Abwesenheitsanalyse</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/style.css" />
-    <!-- Add GSAP -->
-    <script src="/gsap/gsap.min.js"></script>
-    <script src="/gsap/ScrollTrigger.min.js"></script>
-    <script src="js/animations.js" defer></script>
-    <script src="js/index.js" defer></script>
-    <link rel="icon" type="image/x-icon" href="/icon/favicon.ico" />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="/icon/apple-touch-icon.png"
-    />
-    <!-- Add Font Awesome for icons -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-  </head>
-  <body class="bg-gray-50 font-sans">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-md">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-          <div class="flex">
-            <div class="flex-shrink-0 flex items-center">
-              <img
-                class="h-8 w-auto"
-                src="/icon/favicon-32x32.png"
-                alt="Untis-Tools Logo"
-              />
-              <span class="ml-2 text-xl font-bold text-blue-600"
-                >Untis-Tools</span
-              >
-            </div>
-            <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <a
-                href="#"
-                class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Startseite
-              </a>
-              <a
-                href="#features"
-                class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Funktionen
-              </a>
-              <a
-                href="#pricing"
-                class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Preise
-              </a>
-              <a
-                href="#contact"
-                class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Kontakt
-              </a>
-              <a
-                href="/profile/profile.html"
-                class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Kontakt
-              </a>
-            </div>
-          </div>
-          <div class="hidden sm:ml-6 sm:flex sm:items-center">
-            <a
-              href="/login"
-              class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Anmelden
-            </a>
-            <a
-              href="/register"
-              class="ml-4 px-4 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Registrieren
-            </a>
-          </div>
-          <div class="-mr-2 flex items-center sm:hidden">
-            <button
-              type="button"
-              id="mobile-menu-button"
-              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-              aria-controls="mobile-menu"
-              aria-expanded="false"
-            >
-              <span class="sr-only">Menü öffnen</span>
-              <svg
-                class="block h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mobile menu, toggle classes based on menu state. -->
-      <div class="sm:hidden hidden" id="mobile-menu">
-        <div class="pt-2 pb-3 space-y-1">
-          <a
-            href="#"
-            class="bg-blue-50 border-blue-500 text-blue-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-            >Startseite</a
-          >
-          <a
-            href="#features"
-            class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-            >Funktionen</a
-          >
-          <a
-            href="#pricing"
-            class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-            >Preise</a
-          >
-          <a
-            href="#contact"
-            class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-            >Kontakt</a
-          >
-        </div>
-        <div class="pt-4 pb-3 border-t border-gray-200">
-          <div class="flex items-center px-4">
-            <div class="flex-shrink-0">
-              <a
-                href="/login"
-                class="block px-4 py-2 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-                >Anmelden</a
-              >
-            </div>
-            <div class="ml-3">
-              <a
-                href="/register"
-                class="block px-4 py-2 text-base font-medium text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50"
-                >Registrieren</a
-              >
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
-      <div
-        class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 flex flex-col md:flex-row items-center"
-      >
-        <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8 hero-content">
-          <h1
-            class="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl mb-4"
-          >
-            Intelligente Untis Analyse
-          </h1>
-          <p class="text-lg md:text-xl mb-6">
-            Erhalten Sie tiefe Einblicke in Abwesenheitsmuster, erstellen Sie
-            umfassende Berichte und treffen Sie datengestützte Entscheidungen.
-          </p>
-          <div class="flex flex-col sm:flex-row gap-4">
-            <a
-              href="/register"
-              class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-100 md:py-4 md:text-lg md:px-10 shadow-md"
-            >
-              Jetzt starten
-            </a>
-            <a
-              href="#features"
-              class="px-8 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-blue-600 md:py-4 md:text-lg md:px-10"
-            >
-              Mehr erfahren
-            </a>
-          </div>
-        </div>
-        <div class="w-2/3 md:w-1/2 hero-image">
-          <div class="relative">
-            <div class="bg-white rounded-xl shadow-xl overflow-hidden">
-              <div class="p-4 bg-gray-50 border-b">
-                <div class="flex space-x-1">
-                  <div class="h-3 w-3 bg-red-500 rounded-full"></div>
-                  <div class="h-3 w-3 bg-yellow-500 rounded-full"></div>
-                  <div class="h-3 w-3 bg-green-500 rounded-full"></div>
-                </div>
-              </div>
-              <div class="p-4">
-                <div class="animate-pulse flex space-x-4">
-                  <div class="flex-1 space-y-4 py-1">
-                    <div class="h-4 bg-blue-400 rounded w-3/4"></div>
-                    <div class="space-y-2">
-                      <div class="h-4 bg-blue-400 rounded"></div>
-                      <div class="h-4 bg-blue-400 rounded w-5/6"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Untis-Tools | Professionelle Abwesenheitsanalyse</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="css/style.css" />
+        <!-- Add GSAP -->
+        <script src="/gsap/gsap.min.js"></script>
+        <script src="/gsap/ScrollTrigger.min.js"></script>
+        <script src="js/animations.js" defer></script>
+        <script src="js/index.js" defer></script>
+        <link rel="icon" type="image/x-icon" href="/icon/favicon.ico" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/icon/apple-touch-icon.png"
+        />
+        <!-- Add Font Awesome for icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+    </head>
+    <body class="bg-gray-50 font-sans">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-md">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <img
+                                class="h-8 w-auto"
+                                src="/icon/favicon-32x32.png"
+                                alt="Untis-Tools Logo"
+                            />
+                            <span class="ml-2 text-xl font-bold text-blue-600"
+                                >Untis-Tools</span
+                            >
+                        </div>
+                        <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                            <a
+                                href="#"
+                                class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                            >
+                                Startseite
+                            </a>
+                            <a
+                                href="#features"
+                                class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                            >
+                                Funktionen
+                            </a>
+                            <a
+                                href="#pricing"
+                                class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                            >
+                                Preise
+                            </a>
+                            <a
+                                href="#contact"
+                                class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+                            >
+                                Kontakt
+                            </a>
+                        </div>
                     </div>
-                    <div class="h-32 bg-blue-300 rounded"></div>
-                    <div class="grid grid-cols-3 gap-4">
-                      <div class="h-4 bg-blue-400 rounded col-span-1"></div>
-                      <div class="h-4 bg-blue-400 rounded col-span-2"></div>
+                    <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                        <a
+                            href="/login"
+                            class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            Anmelden
+                        </a>
+                        <a
+                            href="/register"
+                            class="ml-4 px-4 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            Registrieren
+                        </a>
                     </div>
-                  </div>
+                    <div class="-mr-2 flex items-center sm:hidden">
+                        <button
+                            type="button"
+                            id="mobile-menu-button"
+                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                            aria-controls="mobile-menu"
+                            aria-expanded="false"
+                        >
+                            <span class="sr-only">Menü öffnen</span>
+                            <svg
+                                class="block h-6 w-6"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Features Section -->
-    <section id="features" class="py-16 bg-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            Leistungsstarke Untis-Tools für Sie
-          </h2>
-          <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-            Umfassende Tools zur Analyse und Visualisierung von
-            Abwesenheitsdaten aus Ihrer Untis-Plattform.
-          </p>
-        </div>
+            <!-- Mobile menu, toggle classes based on menu state. -->
+            <div class="sm:hidden hidden" id="mobile-menu">
+                <div class="pt-2 pb-3 space-y-1">
+                    <a
+                        href="#"
+                        class="bg-blue-50 border-blue-500 text-blue-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                        >Startseite</a
+                    >
+                    <a
+                        href="#features"
+                        class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                        >Funktionen</a
+                    >
+                    <a
+                        href="#pricing"
+                        class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                        >Preise</a
+                    >
+                    <a
+                        href="#contact"
+                        class="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
+                        >Kontakt</a
+                    >
+                </div>
+                <div class="pt-4 pb-3 border-t border-gray-200">
+                    <div class="flex items-center px-4">
+                        <div class="flex-shrink-0">
+                            <a
+                                href="/login"
+                                class="block px-4 py-2 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+                                >Anmelden</a
+                            >
+                        </div>
+                        <div class="ml-3">
+                            <a
+                                href="/register"
+                                class="block px-4 py-2 text-base font-medium text-blue-600 bg-white border border-blue-600 rounded-md hover:bg-blue-50"
+                                >Registrieren</a
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-        <div class="mt-12">
-          <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            <!-- Feature 1 -->
+        <!-- Hero Section -->
+        <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
             <div
-              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
+                class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 flex flex-col md:flex-row items-center"
             >
-              <div class="bg-blue-100 rounded-lg p-3 inline-block">
-                <i class="fas fa-chart-bar text-blue-600 text-2xl"></i>
-              </div>
-              <h3 class="mt-4 text-xl font-medium text-gray-900">
-                Abwesenheitsanalyse
-              </h3>
-              <p class="mt-2 text-gray-600">
-                Umfassende Analyse von Abwesenheiten mit detaillierten Mustern
-                und Statistiken zum Verständnis von Anwesenheitstrends.
-              </p>
+                <div class="md:w-1/2 mb-8 md:mb-0 md:pr-8 hero-content">
+                    <h1
+                        class="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl mb-4"
+                    >
+                        Intelligente Untis Analyse
+                    </h1>
+                    <p class="text-lg md:text-xl mb-6">
+                        Erhalten Sie tiefe Einblicke in Abwesenheitsmuster,
+                        erstellen Sie umfassende Berichte und treffen Sie
+                        datengestützte Entscheidungen.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a
+                            href="/register"
+                            class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-gray-100 md:py-4 md:text-lg md:px-10 shadow-md"
+                        >
+                            Jetzt starten
+                        </a>
+                        <a
+                            href="#features"
+                            class="px-8 py-3 border border-white text-base font-medium rounded-md text-white hover:bg-blue-600 md:py-4 md:text-lg md:px-10"
+                        >
+                            Mehr erfahren
+                        </a>
+                    </div>
+                </div>
+                <div class="w-2/3 md:w-1/2 hero-image">
+                    <div class="relative">
+                        <div
+                            class="bg-white rounded-xl shadow-xl overflow-hidden"
+                        >
+                            <div class="p-4 bg-gray-50 border-b">
+                                <div class="flex space-x-1">
+                                    <div
+                                        class="h-3 w-3 bg-red-500 rounded-full"
+                                    ></div>
+                                    <div
+                                        class="h-3 w-3 bg-yellow-500 rounded-full"
+                                    ></div>
+                                    <div
+                                        class="h-3 w-3 bg-green-500 rounded-full"
+                                    ></div>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="animate-pulse flex space-x-4">
+                                    <div class="flex-1 space-y-4 py-1">
+                                        <div
+                                            class="h-4 bg-blue-400 rounded w-3/4"
+                                        ></div>
+                                        <div class="space-y-2">
+                                            <div
+                                                class="h-4 bg-blue-400 rounded"
+                                            ></div>
+                                            <div
+                                                class="h-4 bg-blue-400 rounded w-5/6"
+                                            ></div>
+                                        </div>
+                                        <div
+                                            class="h-32 bg-blue-300 rounded"
+                                        ></div>
+                                        <div class="grid grid-cols-3 gap-4">
+                                            <div
+                                                class="h-4 bg-blue-400 rounded col-span-1"
+                                            ></div>
+                                            <div
+                                                class="h-4 bg-blue-400 rounded col-span-2"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <!-- Feature 2 -->
-            <div
-              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
-            >
-              <div class="bg-blue-100 rounded-lg p-3 inline-block">
-                <i class="fas fa-chart-pie text-blue-600 text-2xl"></i>
-              </div>
-              <h3 class="mt-4 text-xl font-medium text-gray-900">
-                Interaktive Diagramme
-              </h3>
-              <p class="mt-2 text-gray-600">
-                Visualisieren Sie Abwesenheitsdaten mit interaktiven und
-                anpassbaren Diagrammen, die auf einen Blick klare Einblicke
-                bieten.
-              </p>
-            </div>
-
-            <!-- Feature 3 -->
-            <div
-              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
-            >
-              <div class="bg-blue-100 rounded-lg p-3 inline-block">
-                <i class="fas fa-lightbulb text-blue-600 text-2xl"></i>
-              </div>
-              <h3 class="mt-4 text-xl font-medium text-gray-900">
-                Abwesenheitsempfehlung
-              </h3>
-              <p class="mt-2 text-gray-600">
-                Erhalten Sie intelligente Empfehlungen zur optimalen
-                Abwesenheitsplanung basierend auf historischen Daten und
-                Analysen.
-              </p>
-            </div>
-
-            <!-- Feature 4 -->
-            <div
-              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
-            >
-              <div class="bg-blue-100 rounded-lg p-3 inline-block">
-                <i class="fas fa-file-export text-blue-600 text-2xl"></i>
-              </div>
-              <h3 class="mt-4 text-xl font-medium text-gray-900">
-                Berichte & Export
-              </h3>
-              <p class="mt-2 text-gray-600">
-                Exportieren Sie Ihre Daten und Analysen in verschiedenen
-                Formaten für Präsentationen oder zur weiteren Verarbeitung.
-              </p>
-            </div>
-
-            <!-- Feature 5 -->
-            <div
-              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
-            >
-              <div class="bg-blue-100 rounded-lg p-3 inline-block">
-                <i class="fas fa-file-alt text-blue-600 text-2xl"></i>
-              </div>
-              <h3 class="mt-4 text-xl font-medium text-gray-900">
-                Entschuldigungsvorlagen
-              </h3>
-              <p class="mt-2 text-gray-600">
-                Erstellen Sie professionelle Entschuldigungsschreiben mit
-                anpassbaren Vorlagen für verschiedene Abwesenheitsgründe.
-              </p>
-            </div>
-
-            <!-- Feature 6 -->
-            <div
-              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
-            >
-              <div class="bg-blue-100 rounded-lg p-3 inline-block">
-                <i class="fas fa-mobile-alt text-blue-600 text-2xl"></i>
-              </div>
-              <h3 class="mt-4 text-xl font-medium text-gray-900">
-                Mobilfreundlich
-              </h3>
-              <p class="mt-2 text-gray-600">
-                Greifen Sie auf alle Funktionen mit unserem responsiven Design
-                zu, das für Desktop und Mobilgeräte optimiert ist.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section id="pricing" class="py-16 bg-gray-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            Einfache, transparente Preisgestaltung
-          </h2>
-          <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-            Wählen Sie den Plan, der am besten zu Ihren Anforderungen passt
-          </p>
         </div>
 
-        <div
-          class="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0"
-        >
-          <!-- Basic Plan -->
-          <div
-            class="bg-white border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200 pricing-card"
-          >
-            <div class="p-6">
-              <h3 class="text-lg font-medium text-gray-900">Basis</h3>
-              <p class="mt-4 text-sm text-gray-500">
-                Alle Grundlagen für den Einstieg in die Abwesenheitsanalyse.
-              </p>
-              <p class="mt-8">
-                <span class="text-4xl text-gray-500 line-through mr-2">
-                  3€
-                </span>
-                <span class="text-4xl font-extrabold text-gray-900">1€</span>
-                <span class="text-base font-medium text-gray-500">/Monat</span>
-              </p>
-              <a
-                href="/register"
-                class="mt-8 block w-full bg-blue-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-700"
-                >Jetzt starten</a
-              >
-            </div>
-            <div class="pt-6 pb-8 px-6">
-              <h4 class="text-sm font-medium text-gray-900 tracking-wide">
-                Enthaltene Leistungen
-              </h4>
-              <ul class="mt-6 space-y-4">
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Basis-Abwesenheitsanalyse</span
-                  >
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500">Standard-Diagramme</span>
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Grundlegende Datenansicht</span
-                  >
-                </li>
-              </ul>
-            </div>
-          </div>
+        <!-- Features Section -->
+        <section id="features" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2
+                        class="text-3xl font-extrabold text-gray-900 sm:text-4xl"
+                    >
+                        Leistungsstarke Untis-Tools für Sie
+                    </h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+                        Umfassende Tools zur Analyse und Visualisierung von
+                        Abwesenheitsdaten aus Ihrer Untis-Plattform.
+                    </p>
+                </div>
 
-          <!-- Standard Plan -->
-          <div
-            class="bg-white border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200 pricing-card"
-          >
-            <div class="p-6">
-              <h3 class="text-lg font-medium text-gray-900">Standard</h3>
-              <p class="mt-4 text-sm text-gray-500">
-                Erweiterte Tools für tiefere Einblicke in Ihre Daten.
-              </p>
-              <p class="mt-8">
-                <span class="text-4xl text-gray-500 line-through mr-2">
-                  5€
-                </span>
-                <span class="text-4xl font-extrabold text-gray-900">2€</span>
-                <span class="text-base font-medium text-gray-500">/Monat</span>
-              </p>
-              <a
-                href="/register"
-                class="mt-8 block w-full bg-blue-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-700"
-                >Jetzt starten</a
-              >
-            </div>
-            <div class="pt-6 pb-8 px-6">
-              <h4 class="text-sm font-medium text-gray-900 tracking-wide">
-                Enthaltene Leistungen
-              </h4>
-              <ul class="mt-6 space-y-4">
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Alle Basis-Funktionen</span
-                  >
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Erweiterte Analyse-Tools</span
-                  >
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Interaktive Dashboards</span
-                  >
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Abwesenheitsempfehlungen</span
-                  >
-                </li>
-              </ul>
-            </div>
-          </div>
+                <div class="mt-12">
+                    <div
+                        class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
+                    >
+                        <!-- Feature 1 -->
+                        <div
+                            class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
+                        >
+                            <div
+                                class="bg-blue-100 rounded-lg p-3 inline-block"
+                            >
+                                <i
+                                    class="fas fa-chart-bar text-blue-600 text-2xl"
+                                ></i>
+                            </div>
+                            <h3 class="mt-4 text-xl font-medium text-gray-900">
+                                Abwesenheitsanalyse
+                            </h3>
+                            <p class="mt-2 text-gray-600">
+                                Umfassende Analyse von Abwesenheiten mit
+                                detaillierten Mustern und Statistiken zum
+                                Verständnis von Anwesenheitstrends.
+                            </p>
+                        </div>
 
-          <!-- Premium Plan -->
-          <div
-            class="bg-white border border-blue-200 rounded-lg shadow-sm divide-y divide-gray-200 ring-2 ring-blue-500 pricing-card"
-          >
-            <div class="p-6">
-              <h3 class="text-lg font-medium text-gray-900">Premium</h3>
-              <p class="mt-4 text-sm text-gray-500">
-                Vollständiger Zugriff auf alle erweiterten Analysefunktionen.
-              </p>
-              <p class="mt-8">
-                <span class="text-4xl text-gray-500 line-through mr-2">
-                  10€
-                </span>
-                <span class="text-4xl font-extrabold text-gray-900">3€</span>
-                <span class="text-base font-medium text-gray-500">/Monat</span>
-              </p>
-              <a
-                href="/register"
-                class="mt-8 block w-full bg-blue-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-700"
-                >Jetzt starten</a
-              >
-            </div>
-            <div class="pt-6 pb-8 px-6">
-              <h4 class="text-sm font-medium text-gray-900 tracking-wide">
-                Enthaltene Leistungen
-              </h4>
-              <ul class="mt-6 space-y-4">
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Alle Standard-Funktionen</span
-                  >
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Alle erweiterten Analyse-Tools</span
-                  >
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Entschuldigungsvorlagen</span
-                  >
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500"
-                    >Benutzerdefinierte Berichte</span
-                  >
-                </li>
-                <li class="flex space-x-3">
-                  <i class="fas fa-check text-green-500 flex-shrink-0"></i>
-                  <span class="text-sm text-gray-500">Feature Anfragen</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+                        <!-- Feature 2 -->
+                        <div
+                            class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
+                        >
+                            <div
+                                class="bg-blue-100 rounded-lg p-3 inline-block"
+                            >
+                                <i
+                                    class="fas fa-chart-pie text-blue-600 text-2xl"
+                                ></i>
+                            </div>
+                            <h3 class="mt-4 text-xl font-medium text-gray-900">
+                                Interaktive Diagramme
+                            </h3>
+                            <p class="mt-2 text-gray-600">
+                                Visualisieren Sie Abwesenheitsdaten mit
+                                interaktiven und anpassbaren Diagrammen, die auf
+                                einen Blick klare Einblicke bieten.
+                            </p>
+                        </div>
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-16 bg-white">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-          <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            Kontaktieren Sie uns
-          </h2>
-          <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
-            Haben Sie Fragen? Wir helfen Ihnen gerne weiter.
-          </p>
-        </div>
+                        <!-- Feature 3 -->
+                        <div
+                            class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
+                        >
+                            <div
+                                class="bg-blue-100 rounded-lg p-3 inline-block"
+                            >
+                                <i
+                                    class="fas fa-lightbulb text-blue-600 text-2xl"
+                                ></i>
+                            </div>
+                            <h3 class="mt-4 text-xl font-medium text-gray-900">
+                                Abwesenheitsempfehlung
+                            </h3>
+                            <p class="mt-2 text-gray-600">
+                                Erhalten Sie intelligente Empfehlungen zur
+                                optimalen Abwesenheitsplanung basierend auf
+                                historischen Daten und Analysen.
+                            </p>
+                        </div>
 
-        <div class="mt-12 max-w-lg mx-auto">
-          <form
-            action="#"
-            method="POST"
-            class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
-          >
-            <div>
-              <label
-                for="first-name"
-                class="block text-sm font-medium text-gray-700"
-                >Vorname</label
-              >
-              <div class="mt-1">
-                <input
-                  type="text"
-                  name="first-name"
-                  id="first-name"
-                  autocomplete="given-name"
-                  class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                for="last-name"
-                class="block text-sm font-medium text-gray-700"
-                >Nachname</label
-              >
-              <div class="mt-1">
-                <input
-                  type="text"
-                  name="last-name"
-                  id="last-name"
-                  autocomplete="family-name"
-                  class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-            <div class="sm:col-span-2">
-              <label for="email" class="block text-sm font-medium text-gray-700"
-                >E-Mail</label
-              >
-              <div class="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autocomplete="email"
-                  class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
-                />
-              </div>
-            </div>
-            <div class="sm:col-span-2">
-              <label
-                for="message"
-                class="block text-sm font-medium text-gray-700"
-                >Nachricht</label
-              >
-              <div class="mt-1">
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="4"
-                  class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border border-gray-300 rounded-md"
-                ></textarea>
-              </div>
-            </div>
-            <div class="sm:col-span-2">
-              <button
-                type="submit"
-                class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Nachricht senden
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
+                        <!-- Feature 4 -->
+                        <div
+                            class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
+                        >
+                            <div
+                                class="bg-blue-100 rounded-lg p-3 inline-block"
+                            >
+                                <i
+                                    class="fas fa-file-export text-blue-600 text-2xl"
+                                ></i>
+                            </div>
+                            <h3 class="mt-4 text-xl font-medium text-gray-900">
+                                Berichte & Export
+                            </h3>
+                            <p class="mt-2 text-gray-600">
+                                Exportieren Sie Ihre Daten und Analysen in
+                                verschiedenen Formaten für Präsentationen oder
+                                zur weiteren Verarbeitung.
+                            </p>
+                        </div>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white">
-      <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div class="col-span-1 md:col-span-2">
-            <div class="flex items-center mb-4">
-              <img
-                class="h-8 w-auto"
-                src="/icon/favicon-32x32.png"
-                alt="Untis-Tools Logo"
-              />
-              <span class="ml-2 text-xl font-bold">Untis-Tools</span>
-            </div>
-            <p class="text-gray-300">
-              Professionelle Tools für Untis-Abwesenheitsanalyse, die Einblicke
-              und Empfehlungen für Bildungseinrichtungen bieten.
-            </p>
-          </div>
+                        <!-- Feature 5 -->
+                        <div
+                            class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
+                        >
+                            <div
+                                class="bg-blue-100 rounded-lg p-3 inline-block"
+                            >
+                                <i
+                                    class="fas fa-file-alt text-blue-600 text-2xl"
+                                ></i>
+                            </div>
+                            <h3 class="mt-4 text-xl font-medium text-gray-900">
+                                Entschuldigungsvorlagen
+                            </h3>
+                            <p class="mt-2 text-gray-600">
+                                Erstellen Sie professionelle
+                                Entschuldigungsschreiben mit anpassbaren
+                                Vorlagen für verschiedene Abwesenheitsgründe.
+                            </p>
+                        </div>
 
-          <div>
-            <h3
-              class="text-sm font-semibold text-gray-400 tracking-wider uppercase"
-            >
-              Ressourcen
-            </h3>
-            <ul class="mt-4 space-y-4">
-              <li>
-                <a href="#" class="text-base text-gray-300 hover:text-white"
-                  >Dokumentation</a
+                        <!-- Feature 6 -->
+                        <div
+                            class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition duration-300 feature-card"
+                        >
+                            <div
+                                class="bg-blue-100 rounded-lg p-3 inline-block"
+                            >
+                                <i
+                                    class="fas fa-mobile-alt text-blue-600 text-2xl"
+                                ></i>
+                            </div>
+                            <h3 class="mt-4 text-xl font-medium text-gray-900">
+                                Mobilfreundlich
+                            </h3>
+                            <p class="mt-2 text-gray-600">
+                                Greifen Sie auf alle Funktionen mit unserem
+                                responsiven Design zu, das für Desktop und
+                                Mobilgeräte optimiert ist.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="py-16 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2
+                        class="text-3xl font-extrabold text-gray-900 sm:text-4xl"
+                    >
+                        Einfache, transparente Preisgestaltung
+                    </h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+                        Wählen Sie den Plan, der am besten zu Ihren
+                        Anforderungen passt
+                    </p>
+                </div>
+
+                <div
+                    class="mt-12 space-y-4 sm:mt-16 sm:space-y-0 sm:grid sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:max-w-4xl lg:mx-auto xl:max-w-none xl:mx-0"
                 >
-              </li>
-              <li>
-                <a href="#" class="text-base text-gray-300 hover:text-white"
-                  >Tutorials</a
-                >
-              </li>
-              <li>
-                <a href="#" class="text-base text-gray-300 hover:text-white"
-                  >FAQ</a
-                >
-              </li>
-            </ul>
-          </div>
+                    <!-- Basic Plan -->
+                    <div
+                        class="bg-white border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200 pricing-card"
+                    >
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                Basis
+                            </h3>
+                            <p class="mt-4 text-sm text-gray-500">
+                                Alle Grundlagen für den Einstieg in die
+                                Abwesenheitsanalyse.
+                            </p>
+                            <p class="mt-8">
+                                <span
+                                    class="text-4xl text-gray-500 line-through mr-2"
+                                >
+                                    3€
+                                </span>
+                                <span
+                                    class="text-4xl font-extrabold text-gray-900"
+                                    >1€</span
+                                >
+                                <span
+                                    class="text-base font-medium text-gray-500"
+                                    >/Monat</span
+                                >
+                            </p>
+                            <a
+                                href="/register"
+                                class="mt-8 block w-full bg-blue-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-700"
+                                >Jetzt starten</a
+                            >
+                        </div>
+                        <div class="pt-6 pb-8 px-6">
+                            <h4
+                                class="text-sm font-medium text-gray-900 tracking-wide"
+                            >
+                                Enthaltene Leistungen
+                            </h4>
+                            <ul class="mt-6 space-y-4">
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Basis-Abwesenheitsanalyse</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Standard-Diagramme</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Grundlegende Datenansicht</span
+                                    >
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
-          <div>
-            <h3
-              class="text-sm font-semibold text-gray-400 tracking-wider uppercase"
-            >
-              Rechtliches
-            </h3>
-            <ul class="mt-4 space-y-4">
-              <li>
-                <a href="#" class="text-base text-gray-300 hover:text-white"
-                  >Datenschutzrichtlinie</a
-                >
-              </li>
-              <li>
-                <a href="#" class="text-base text-gray-300 hover:text-white"
-                  >Nutzungsbedingungen</a
-                >
-              </li>
-            </ul>
-          </div>
-        </div>
+                    <!-- Standard Plan -->
+                    <div
+                        class="bg-white border border-gray-200 rounded-lg shadow-sm divide-y divide-gray-200 pricing-card"
+                    >
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                Standard
+                            </h3>
+                            <p class="mt-4 text-sm text-gray-500">
+                                Erweiterte Tools für tiefere Einblicke in Ihre
+                                Daten.
+                            </p>
+                            <p class="mt-8">
+                                <span
+                                    class="text-4xl text-gray-500 line-through mr-2"
+                                >
+                                    5€
+                                </span>
+                                <span
+                                    class="text-4xl font-extrabold text-gray-900"
+                                    >2€</span
+                                >
+                                <span
+                                    class="text-base font-medium text-gray-500"
+                                    >/Monat</span
+                                >
+                            </p>
+                            <a
+                                href="/register"
+                                class="mt-8 block w-full bg-blue-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-700"
+                                >Jetzt starten</a
+                            >
+                        </div>
+                        <div class="pt-6 pb-8 px-6">
+                            <h4
+                                class="text-sm font-medium text-gray-900 tracking-wide"
+                            >
+                                Enthaltene Leistungen
+                            </h4>
+                            <ul class="mt-6 space-y-4">
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Alle Basis-Funktionen</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Erweiterte Analyse-Tools</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Interaktive Dashboards</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Abwesenheitsempfehlungen</span
+                                    >
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
-        <div class="mt-8 pt-8 border-t border-gray-700">
-          <p class="text-base text-gray-400 text-center">
-            &copy; 2023 Untis-Tools. Alle Rechte vorbehalten.
-          </p>
-        </div>
-      </div>
-    </footer>
-  </body>
+                    <!-- Premium Plan -->
+                    <div
+                        class="bg-white border border-blue-200 rounded-lg shadow-sm divide-y divide-gray-200 ring-2 ring-blue-500 pricing-card"
+                    >
+                        <div class="p-6">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                Premium
+                            </h3>
+                            <p class="mt-4 text-sm text-gray-500">
+                                Vollständiger Zugriff auf alle erweiterten
+                                Analysefunktionen.
+                            </p>
+                            <p class="mt-8">
+                                <span
+                                    class="text-4xl text-gray-500 line-through mr-2"
+                                >
+                                    10€
+                                </span>
+                                <span
+                                    class="text-4xl font-extrabold text-gray-900"
+                                    >3€</span
+                                >
+                                <span
+                                    class="text-base font-medium text-gray-500"
+                                    >/Monat</span
+                                >
+                            </p>
+                            <a
+                                href="/register"
+                                class="mt-8 block w-full bg-blue-600 border border-transparent rounded-md py-2 text-sm font-semibold text-white text-center hover:bg-blue-700"
+                                >Jetzt starten</a
+                            >
+                        </div>
+                        <div class="pt-6 pb-8 px-6">
+                            <h4
+                                class="text-sm font-medium text-gray-900 tracking-wide"
+                            >
+                                Enthaltene Leistungen
+                            </h4>
+                            <ul class="mt-6 space-y-4">
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Alle Standard-Funktionen</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Alle erweiterten Analyse-Tools</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Entschuldigungsvorlagen</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Benutzerdefinierte Berichte</span
+                                    >
+                                </li>
+                                <li class="flex space-x-3">
+                                    <i
+                                        class="fas fa-check text-green-500 flex-shrink-0"
+                                    ></i>
+                                    <span class="text-sm text-gray-500"
+                                        >Feature Anfragen</span
+                                    >
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2
+                        class="text-3xl font-extrabold text-gray-900 sm:text-4xl"
+                    >
+                        Kontaktieren Sie uns
+                    </h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-xl text-gray-500">
+                        Haben Sie Fragen? Wir helfen Ihnen gerne weiter.
+                    </p>
+                </div>
+
+                <div class="mt-12 max-w-lg mx-auto">
+                    <form
+                        action="#"
+                        method="POST"
+                        class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-8"
+                    >
+                        <div>
+                            <label
+                                for="first-name"
+                                class="block text-sm font-medium text-gray-700"
+                                >Vorname</label
+                            >
+                            <div class="mt-1">
+                                <input
+                                    type="text"
+                                    name="first-name"
+                                    id="first-name"
+                                    autocomplete="given-name"
+                                    class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                for="last-name"
+                                class="block text-sm font-medium text-gray-700"
+                                >Nachname</label
+                            >
+                            <div class="mt-1">
+                                <input
+                                    type="text"
+                                    name="last-name"
+                                    id="last-name"
+                                    autocomplete="family-name"
+                                    class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                                />
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label
+                                for="email"
+                                class="block text-sm font-medium text-gray-700"
+                                >E-Mail</label
+                            >
+                            <div class="mt-1">
+                                <input
+                                    id="email"
+                                    name="email"
+                                    type="email"
+                                    autocomplete="email"
+                                    class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border-gray-300 rounded-md"
+                                />
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label
+                                for="message"
+                                class="block text-sm font-medium text-gray-700"
+                                >Nachricht</label
+                            >
+                            <div class="mt-1">
+                                <textarea
+                                    id="message"
+                                    name="message"
+                                    rows="4"
+                                    class="py-3 px-4 block w-full shadow-sm focus:ring-blue-500 focus:border-blue-500 border border-gray-300 rounded-md"
+                                ></textarea>
+                            </div>
+                        </div>
+                        <div class="sm:col-span-2">
+                            <button
+                                type="submit"
+                                class="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                Nachricht senden
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-white">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div class="col-span-1 md:col-span-2">
+                        <div class="flex items-center mb-4">
+                            <img
+                                class="h-8 w-auto"
+                                src="/icon/favicon-32x32.png"
+                                alt="Untis-Tools Logo"
+                            />
+                            <span class="ml-2 text-xl font-bold"
+                                >Untis-Tools</span
+                            >
+                        </div>
+                        <p class="text-gray-300">
+                            Professionelle Tools für Untis-Abwesenheitsanalyse,
+                            die Einblicke und Empfehlungen für
+                            Bildungseinrichtungen bieten.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h3
+                            class="text-sm font-semibold text-gray-400 tracking-wider uppercase"
+                        >
+                            Ressourcen
+                        </h3>
+                        <ul class="mt-4 space-y-4">
+                            <li>
+                                <a
+                                    href="#"
+                                    class="text-base text-gray-300 hover:text-white"
+                                    >Dokumentation</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    href="#"
+                                    class="text-base text-gray-300 hover:text-white"
+                                    >Tutorials</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    href="#"
+                                    class="text-base text-gray-300 hover:text-white"
+                                    >FAQ</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3
+                            class="text-sm font-semibold text-gray-400 tracking-wider uppercase"
+                        >
+                            Rechtliches
+                        </h3>
+                        <ul class="mt-4 space-y-4">
+                            <li>
+                                <a
+                                    href="#"
+                                    class="text-base text-gray-300 hover:text-white"
+                                    >Datenschutzrichtlinie</a
+                                >
+                            </li>
+                            <li>
+                                <a
+                                    href="#"
+                                    class="text-base text-gray-300 hover:text-white"
+                                    >Nutzungsbedingungen</a
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-8 border-t border-gray-700">
+                    <p class="text-base text-gray-400 text-center">
+                        &copy; 2023 Untis-Tools. Alle Rechte vorbehalten.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </body>
 </html>

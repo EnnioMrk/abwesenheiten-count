@@ -11,6 +11,7 @@ export async function loginWithUrl(email, QRCodeData) {
   }
 
   if (!QRCodeData) {
+    console.error("❌ No QR code data found for user");
     return null;
   }
 
@@ -21,7 +22,13 @@ export async function loginWithUrl(email, QRCodeData) {
     URL
   );
 
-  await untis.login();
+  try {
+    await untis.login();
+    console.log("🔑 Successfully logged in to Untis");
+  } catch (error) {
+    console.error("💥 Failed to login to Untis:", error);
+    return null;
+  }
 
   sessions.push({
     email,
@@ -31,7 +38,7 @@ export async function loginWithUrl(email, QRCodeData) {
   return untis.username;
 }
 
-function getSession(email) {
+export function getSession(email) {
   return sessions.find((session) => session.email == email);
 }
 
@@ -67,35 +74,40 @@ export async function getSchoolYearStart() {
   return data.filter((h) => h.name[0].text == "Halbjahresferien")[1].endDate;
 }
 
-async function validateSession(session, email) {
+export async function validateSession(session, email) {
   if (!session) {
+    console.log("🔄 Creating new session for user");
     let QRCodeData = await getUntisUrl(email);
     if (!QRCodeData) {
+      console.error("❌ No QR code data found for user");
       return null;
     }
 
     const username = await loginWithUrl(email, QRCodeData);
   } else {
     if (!(await session.untis.validateSession())) {
+      console.log("🔄 Session expired, logging in again");
       await session.untis.login();
     }
   }
   return true;
 }
 
-export async function getYearTimetable(email) {
+export async function getUserData(email) {
+  console.log(`📊 Getting user data for ${email}`);
   let session = getSession(email);
 
-  if (!(await validateSession(session, email))) {
-    return null;
-  }
-  session = getSession(email);
+  let user = await session.untis
+    .getStudents()
+    .find((s) => s.key == session.untis.username);
+  return user;
+}
 
-  let schoolYearStart = new Date(
-    //(await session.untis.getCurrentSchoolyear()).startDate
-    (await getSchoolYearStart()).slice(0, 10)
-  );
-  //schoolYearStart.setDate(schoolYearStart.getDate() + 2);
+export async function getYearTimetable(email) {
+  console.log(`📅 Getting timetable for year for ${email}`);
+  let session = getSession(email);
+
+  let schoolYearStart = new Date((await getSchoolYearStart()).slice(0, 10));
 
   let timetableData = await session.untis.getOwnTimetableForRange(
     schoolYearStart,
@@ -105,20 +117,19 @@ export async function getYearTimetable(email) {
 }
 
 export async function getTodayTimetable(email) {
+  console.log(`📅 Getting today timetable for ${email}`);
   let session = getSession(email);
 
-  if (!(await validateSession(session, email))) {
-    return null;
-  }
-  session = getSession(email);
-
-  return await session.untis.getOwnTimetableForToday();
+  let timetable = await session.untis.getOwnTimetableForToday();
+  return timetable;
 }
 
 export async function getAllLessonCount(email) {
+  console.log(`📊 Getting all lesson count for ${email}`);
   let timetable = await getYearTimetable(email);
 
   if (!timetable) {
+    console.error("❌ Failed to get timetable");
     return null;
   }
 
@@ -196,17 +207,10 @@ function calculateLessonTimes(start, end) {
 }
 
 export async function getAbsences(email) {
+  console.log(`📊 Getting absences for ${email}`);
   let session = getSession(email);
 
-  if (!(await validateSession(session, email))) {
-    return null;
-  }
-  session = getSession(email);
-
-  let schoolYearStart = new Date(
-    //(await session.untis.getCurrentSchoolyear()).startDate
-    (await getSchoolYearStart()).slice(0, 10)
-  );
+  let schoolYearStart = new Date((await getSchoolYearStart()).slice(0, 10));
   schoolYearStart.setDate(schoolYearStart.getDate() + 2);
 
   let timetable = await getYearTimetable(email);

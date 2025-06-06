@@ -3,7 +3,7 @@ import { loginWithUrl } from "../../helpers/untis";
 
 export default async function login(req, res) {
   const { email, password } = req.body;
-  process.stdout.write(`➡️ Logging in ${email}`);
+  console.log(`➡️ Logging in ${email}`);
   const user = await verifyUserPassword(email, password);
 
   if (user) {
@@ -15,14 +15,13 @@ export default async function login(req, res) {
       let username = await loginWithUrl(email, untisUrl);
       req.session.user.untisUsername = username;
     }
-    console.log(' ✅');
     res.json({
       success: true,
       user,
     });
     console.log(`🚹 ${email} logged in ${untisUrl ? "with" : "without"} untis`);
   } else {
-    console.log(' ❌');
+    console.log(`❌ ${email} login failed`);
     res.status(401).json({
       success: false,
       error: "Invalid email or password",

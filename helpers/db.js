@@ -12,25 +12,91 @@ const { Pool } = pg;
  * @type {pg.Pool}
  */
 let pool;
+let isConnecting = false;
 
-function connectDb() {
-  pool = new Pool({
-    user: process.env.PG_USER,
-    password: process.env.PG_PASSWORD,
-    host: process.env.PG_HOST,
-    database: process.env.PG_DB,
-    ssl: true,
-    idleTimeoutMillis: 0,
-    connectionTimeoutMillis: 0,
-  });
-
-  pool.on("error", (err) => {
-    console.log("Reconnecting to database...");
-    connectDb();
-  });
-
-  console.log("❇️ Connected to database");
+async function testConnection(client) {
+  try {
+    await client.query("SELECT 1");
+    return true;
+  } catch (err) {
+    console.error("❌ Connection test failed:", err);
+    return false;
+  }
 }
+
+async function connectDb() {
+  if (isConnecting) {
+    console.log("🔄 Connection attempt already in progress...");
+    return;
+  }
+
+  isConnecting = true;
+
+  try {
+    if (pool) {
+      try {
+        const client = await pool.connect();
+        const isConnected = await testConnection(client);
+        client.release();
+
+        if (isConnected) {
+          console.log("✅ Database connection is healthy");
+          isConnecting = false;
+          return;
+        }
+      } catch (err) {
+        console.log(
+          "🔄 Existing pool is unhealthy, creating new connection..."
+        );
+      }
+    }
+
+    pool = new Pool({
+      user: process.env.PG_USER,
+      password: process.env.PG_PASSWORD,
+      host: process.env.PG_HOST,
+      database: process.env.PG_DB,
+      ssl: true,
+      min: 1,
+      max: 10,
+      createTimeoutMillis: 8000,
+      acquireTimeoutMillis: 8000,
+      idleTimeoutMillis: 1000 * 60 * 5,
+      reapIntervalMillis: 1000,
+      createRetryIntervalMillis: 100,
+    });
+
+    // Test the new connection
+    const client = await pool.connect();
+    const isConnected = await testConnection(client);
+    client.release();
+
+    if (!isConnected) {
+      throw new Error("Failed to establish database connection");
+    }
+
+    pool.on("error", async (err) => {
+      console.error("❌ Pool error:", err);
+      if (!isConnecting) {
+        console.log("🔄 Attempting to reconnect to database...");
+        await connectDb();
+      }
+    });
+
+    console.log("💾 Connected to database");
+  } catch (err) {
+    console.error("❌ Database connection error:", err);
+    // Wait before retrying
+    setTimeout(() => {
+      isConnecting = false;
+      connectDb();
+    }, 5000);
+  } finally {
+    isConnecting = false;
+  }
+}
+
+// Initial connection
 connectDb();
 
 /**
@@ -117,7 +183,7 @@ export async function saveNewUser(userData) {
     return result.rows[0];
   } catch (error) {
     await client.query("ROLLBACK");
-    console.error("Error saving new user:", error);
+    console.error("❌ Error saving new user:", error);
     throw error;
   } finally {
     client.release();
@@ -143,7 +209,7 @@ export async function saveUntisUrl(email, untisUrl) {
       return result.rows[0];
     })
     .catch((error) => {
-      console.error("Error saving new user URL:", error);
+      console.error("❌ Error saving Untis URL:", error);
       throw error;
     });
 }
@@ -156,7 +222,7 @@ export async function getUntisUrl(email) {
     `;
   const values = [email];
   const result = await pool.query(query, values).catch((error) => {
-    console.error("Error getting user URL:", error);
+    console.error("❌ Error getting Untis URL:", error);
     throw error;
   });
   return result.rows[0]?.untis_url;
@@ -198,7 +264,7 @@ export async function verifyUserPassword(email, password) {
       return null;
     }
   } catch (error) {
-    console.error("Error verifying user password:", error);
+    console.error("🔒 Error verifying user password:", error);
     throw error;
   }
 }
@@ -249,10 +315,10 @@ export async function initializeDb() {
                 )
             `);
 
-    console.log("❇️ Database initialized");
+    console.log("✅ Users table created/verified");
   } catch (err) {
     await client.query("ROLLBACK");
-    console.error("Error initializing database:", err);
+    console.error("❌ Error initializing database:", err);
     throw err;
   } finally {
     client.release();

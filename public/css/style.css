@@ -31,6 +31,27 @@ html {
     outline: none;
 }
 
+/* Chartist custom styling for all-time widget */
+.ct-chart .ct-series-a .ct-bar {
+    stroke: rgb(99, 102, 241);
+    stroke-opacity: 0.8;
+}
+
+.ct-chart .ct-series-a .ct-bar:hover {
+    stroke-opacity: 1;
+    cursor: pointer;
+}
+
+.ct-chart .ct-label {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.ct-chart .ct-grid {
+    stroke: rgba(107, 114, 128, 0.2);
+    stroke-width: 1px;
+}
+
 /* Custom transitions */
 .transition-all {
     transition-property: all;

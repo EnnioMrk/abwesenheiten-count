@@ -1,29 +1,42 @@
-import express from "express";
-import session from "express-session";
-import http from "http";
-import pgSession from "connect-pg-simple";
+import express from 'express';
+import session from 'express-session';
+import { LRUCache } from 'lru-cache';
+import http from 'http';
+import pgSession from 'connect-pg-simple';
 //import { Server } from "socket.io";
-import { getDb } from "./helpers/db.js";
-import { readdir } from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
+import { getDb } from './helpers/db.js';
 import {
-  loadWidgets,
-  handleWidgetReq,
-  getWidgetsConfig,
-} from "./widgets/index.js";
+    loadWidgets,
+    handleWidgetReq,
+    getWidgetsConfig,
+} from './widgets/index.js';
+import { getSession, validateSession } from './helpers/untis.js';
+import AuthManager from './managers/auth.js';
+import ApiManager from './managers/api.js';
+import DistManager from './managers/dist.js';
 
-const port = process.env.PORT || 3000;
+let port = process.env.PORT || 3000;
+
+// Initialize LRU Cache for Untis API requests
+const untisCache = new LRUCache({
+    max: 500, // Maximum number of items
+    ttl: 1000 * 60 * 30, // 30 minutes TTL
+    allowStale: false,
+    updateAgeOnGet: false,
+    updateAgeOnHas: false,
+});
+
+// Make cache available globally for API endpoints
+global.untisCache = untisCache;
 
 const db = getDb();
 
 try {
-  await db.query('SELECT 1');
-  console.log('✅ Database connection successful');
+    await db.query('SELECT 1');
+    console.log('✅ Database connection successful');
 } catch (err) {
-  console.error('❌ Failed to connect to the database:', err);
-  process.exit(1);
+    console.error('❌ Failed to connect to the database:', err);
+    process.exit(1);
 }
 
 const app = express();
@@ -33,259 +46,210 @@ const server = http.createServer(app);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
-  session({
-    secret: "your-secret-key",
-    resave: true,
-    store: new (pgSession(session))({
-      pool: db,
-      createTableIfMissing: true,
-    }),
-    saveUninitialized: true,
-    cookie: {
-      secure: false, // Set to true if using HTTPS
-      maxAge: 48 * 60 * 60 * 1000, // 48 hours
-    },
-  })
+    session({
+        secret: 'your-secret-key',
+        resave: true,
+        store: new (pgSession(session))({
+            pool: db,
+            createTableIfMissing: true,
+        }),
+        saveUninitialized: true,
+        cookie: {
+            secure: false, // Set to true if using HTTPS
+            maxAge: 48 * 60 * 60 * 1000, // 48 hours
+        },
+    })
 );
 
 //log all requests
 app.use((req, res, next) => {
-  console.log(`ℹ️ ${req.session.user?`${req.session.user.first_name} ${req.session.user.last_name} `:` `}${req.method} ${req.url}`);
-  next();
+    //join the last two parts of the path
+    let reqPath = req.path.split('/').slice(-2).join('/');
+    if (reqPath.includes('.')) return next();
+    console.log(
+        `ℹ️ ${
+            req.session.user
+                ? `${req.session.user.first_name} ${req.session.user.last_name} `
+                : `👻 `
+        }${req.method} ${req.url}`
+    );
+    next();
 });
 
-// Socket.IO connection handling
-/*io.on("connection", (socket) => {
-  // Get session ID from handshake
-  const sessionId = socket.handshake.query.sessionId;
-  console.log(`New Socket.IO connection with sessionId ${sessionId}`);
-});*/
+// Untis API Cache Middleware
+app.use('/api/untis', (req, res, next) => {
+    //untis middleware
+    console.log(`🔄 Processing Untis API request: ${req.path}`);
+    const email = req.session?.user?.email;
+    const noCache = req.query.noCache === 'true';
 
-// Authentication middleware
-const requireAuth = (req, res, next) => {
-  if (!req.session.user) {
-    return res.redirect("/login");
-  }
-  next();
-};
+    if (!email) {
+        return next();
+    }
 
-const requireUntis = (req, res, next) => {
-  if (!req.session.user?.untisUsername) {
-    return res.redirect("/untis-login");
-  }
-  next();
-};
+    // Generate cache key based on endpoint and user email
+    const cacheKey = `${email}:${req.path}:${JSON.stringify(req.query)}`;
 
-// Define unprotected routes
-const noAuthRoutes = ["/login", "/register", "/"];
+    // If noCache is requested, delete existing cache entry
+    if (noCache) {
+        untisCache.delete(cacheKey);
+        console.log(`🗑️ Cache cleared for ${req.path}`);
+        return next();
+    }
 
-const noUntisRoutes = [...noAuthRoutes, "/untis-login"];
+    // Check if we have cached data
+    const cachedData = untisCache.get(cacheKey);
+    if (cachedData) {
+        console.log(`💾 Cache hit for ${req.path}`);
+        return res.json(cachedData);
+    }
 
-// Apply authentication middleware to all routes except unprotected ones
-app.use((req, res, next) => {
-  // Check if the current path is in the unprotected routes list
-  const path = req.path;
-  if (path.startsWith("/api")) {
-    return next();
-  }
-  // Allow access to static assets without authentication
-  if (
-    req.session.user?.untisUsername &&
-    ["/untis-login", "/login", "/register"].some((route) =>
-      path.includes(route)
-    )
-  ) {
-    return res.redirect("/dashboard");
-  }
-  if (
-    path.includes(".js") ||
-    path.includes(".css") ||
-    path.includes(".png") ||
-    path.includes(".jpg") ||
-    path.includes(".ico") ||
-    path.includes(".svg") ||
-    noAuthRoutes.some((route) => route == path || path.includes(route + "/"))
-  ) {
-    return next();
-  }
+    // Store original res.json to intercept response
+    const originalJson = res.json;
+    res.json = function (data) {
+        // Cache the response data
+        untisCache.set(cacheKey, data);
+        console.log(`📝 Cached response for ${req.path}`);
+        // Call original json method
+        return originalJson.call(this, data);
+    };
 
-  if (
-    noUntisRoutes.some((route) => route == path || path.includes(route + "/"))
-  ) {
-    return requireAuth(req, res, next);
-  } else {
-    return requireUntis(req, res, next);
-  }
+    next();
 });
 
-let importedPaths = {};
-// Recursive API route loader
-const loadApiRoutes = async (directory = "api", basePath = "") => {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const dirPath = path.join(__dirname, directory);
+const authManager = new AuthManager(app);
+authManager.start();
 
-  try {
-    // Check if directory exists
-    if (!fs.existsSync(dirPath)) {
-      console.warn(`API directory not found: ${dirPath}`);
-      return;
-    }
+// Initialize and start the distribution manager
+const distManager = new DistManager(app);
+distManager.start();
 
-    const entries = await readdir(dirPath, { withFileTypes: true });
+const apiManager = new ApiManager(app);
+await apiManager.start();
 
-    for (const entry of entries) {
-      const fullPath = path.join(dirPath, entry.name);
-
-      // Handle directories recursively
-      if (entry.isDirectory()) {
-        // Use the directory name as part of the route path
-        const newBasePath = path.join(basePath, entry.name);
-        await loadApiRoutes(path.join(directory, entry.name), newBasePath);
-        continue;
-      }
-
-      // Handle API files
-      if (entry.isFile() && entry.name.endsWith(".js")) {
-        // Extract method and endpoint from filename (e.g., get-users.js)
-        const filenameParts = path.parse(entry.name).name.split("-");
-        const method = filenameParts[0].toLowerCase();
-
-        // Skip files with invalid method names
-        const validMethods = [
-          "get",
-          "post",
-          "put",
-          "delete",
-          "patch",
-          "options",
-          "head",
-        ];
-        if (!validMethods.includes(method)) {
-          console.warn(`Invalid HTTP method in filename: ${entry.name}`);
-          continue;
-        }
-
-        // The rest of the filename is the endpoint
-        const endpoint = filenameParts.slice(1).join("-");
-
-        // Construct the full route path
-        let routePath = path.join("/api", basePath, endpoint);
-
-        // Normalize path separators for URL
-        routePath = routePath.split(path.sep).join("/");
-
-        try {
-          // Import the route handler using dynamic import
-          const importPath = `file://${fullPath}`;
-          const module = await import(importPath);
-          const handler = module.default;
-
-          if (typeof handler === "function") {
-            // Register the route
-            app[method](routePath, handler);
-            if (!importedPaths[routePath.split("/")[2]]) {
-              importedPaths[routePath.split("/")[2]] = 0;
-            }
-            importedPaths[routePath.split("/")[2]] += 1;
-          } else {
-            console.warn(`❌ No default export found in ${entry.name}`);
-          }
-        } catch (error) {
-          console.error(
-            `❌ Error registering route from ${entry.name}:`,
-            error
-          );
-        }
-      }
-    }
-  } catch (error) {
-    console.error(`Error loading API routes from ${directory}:`, error);
-  }
-};
-
-await loadApiRoutes();
-for (const [key, value] of Object.entries(importedPaths)) {
-  console.log(`✅ Imported ${value} routes from ${key} directory`);
+for (const [key, value] of Object.entries(apiManager.importedPaths)) {
+    console.log(`✅ Imported ${value} routes from ${key} directory`);
 }
 
 await loadWidgets();
 
-app.get("/widgets/config", getWidgetsConfig);
+app.get('/widgets/config', getWidgetsConfig);
 
-app.get("/widgets/:id", handleWidgetReq);
+app.get('/widgets/:id', handleWidgetReq);
 
 // Server static files after loading API routes
 app.use(
-  express.static("public", {
-    extensions: ["html"],
-    index: "index.html",
-  })
+    express.static('public', {
+        extensions: ['html'],
+        index: 'index.html',
+    })
 );
 
 try {
-
-server.on('error', async (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`Port ${port} is already in use. Attempting to free it...`);
-    try {
-      // Find and kill the process using the port
-      const { execSync } = require('child_process');
-      // This works for macOS and Linux. For Windows, use a different command.
-      const pids = execSync(`lsof -t -i:${port}`).toString().trim().split("\n");
-      if (pids.length > 0) {
-        for (const pid of pids) {
-        console.log(`Killing process ${pid} using port ${port}...`);
-        execSync(`kill -9 ${pid}`);
-        console.log(`Process ${pid} killed.`);
+    server.on('error', async (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.error(`🚫 Port ${port} is already in use.`);
+            if (process.env.KILL_PORT_BLOCKERS) {
+                console.error(
+                    `🔪 Attempting to kill processes using port ${port}...`
+                );
+                try {
+                    const { execSync } = require('child_process');
+                    const pids = execSync(`lsof -t -i:${port}`)
+                        .toString()
+                        .trim()
+                        .split('\n');
+                    if (pids.length > 0) {
+                        for (const pid of pids) {
+                            console.log(
+                                `💀 Killing process ${pid} using port ${port}...`
+                            );
+                            execSync(`kill -9 ${pid}`);
+                            console.log(`✅ Process ${pid} killed.`);
+                        }
+                        console.log(`🔄 Restarting server...`);
+                        require('child_process').spawn(
+                            process.argv.shift(),
+                            process.argv,
+                            {
+                                cwd: process.cwd(),
+                                detached: true,
+                                stdio: 'inherit',
+                            }
+                        );
+                        process.exit(1);
+                    } else {
+                        console.error('❌ No process found using the port.');
+                    }
+                } catch (killErr) {
+                    console.error(
+                        '💥 Failed to kill process using the port:',
+                        killErr
+                    );
+                    process.exit(1);
+                }
+            } else {
+                port += 1;
+                console.log(`🔄 Restarting server on new port ${port}...`);
+                server.close();
+                server.listen(port, () => {
+                    console.log(
+                        `🚀 Server running at http://localhost:${port}`
+                    );
+                });
+            }
+        } else {
+            console.error('💥 Server error:', err);
+            process.exit(1);
         }
-        console.log(`Restarting server...`);  
-        // Optionally, restart the server
-        require("child_process").spawn(process.argv.shift(), process.argv, {
-          cwd: process.cwd(),
-          detached : true,
-          stdio: "inherit"
-      });
-        process.exit(1); // Let your process manager restart it
-      } else {
-        console.error('No process found using the port.');
-      }
-    } catch (killErr) {
-      console.error('Failed to kill process using the port:', killErr);
-      process.exit(1);
-    }
-  } else {
-    console.error('Server error:', err);
-    process.exit(1);
-  }
-});
+    });
 
-server.listen(port, () => {
-  console.log(`🛜 Server running at http://localhost:${port}`);
-});
+    server.listen(port, () => {
+        console.log(`🚀 Server running at http://localhost:${port}`);
+    });
 } catch (error) {
-  console.error('Error starting server:', error);
-  process.exit(1); // Exit to allow a process manager to restart
+    console.error('❌ Error starting server:', error);
+    process.exit(1);
 }
 
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-  // Optionally log the error to a file or external service here
-  require("child_process").spawn(process.argv.shift(), process.argv, {
-    cwd: process.cwd(),
-    detached : true,
-    stdio: "inherit"
+// Add global error handler
+app.use((err, req, res, next) => {
+    console.error('💥 Unhandled error:', err);
+    res.status(500).json({ error: 'Internal server error' });
 });
-  process.exit(1); // Exit to allow a process manager to restart
+
+// Add 404 handler
+app.use((req, res) => {
+    console.log(`🔍 404 Not Found: ${req.url}`);
+    res.status(404).json({ error: 'Not found' });
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('💥 Uncaught Exception:', err);
+    if (process.env.RESTART_ON_ERROR) {
+        console.log('🔄 Restarting server due to uncaught exception...');
+        require('child_process').spawn(process.argv.shift(), process.argv, {
+            cwd: process.cwd(),
+            detached: true,
+            stdio: 'inherit',
+        });
+        process.exit(1);
+    } else {
+        process.exit(1);
+    }
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Optionally log the error to a file or external service here
-  require("child_process").spawn(process.argv.shift(), process.argv, {
-    cwd: process.cwd(),
-    detached : true,
-    stdio: "inherit"
-});
-  process.exit(1); // Exit to allow a process manager to restart
+    console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+    if (process.env.RESTART_ON_ERROR) {
+        console.log('🔄 Restarting server due to unhandled rejection...');
+        require('child_process').spawn(process.argv.shift(), process.argv, {
+            cwd: process.cwd(),
+            detached: true,
+            stdio: 'inherit',
+        });
+        process.exit(1);
+    } else {
+        process.exit(1);
+    }
 });

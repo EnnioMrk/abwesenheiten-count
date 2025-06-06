@@ -1,6 +1,6 @@
 export default async function logout(req, res) {
   try {
-    process.stdout.write(`➡️ Logging out ${req.session.user.email}`);
+    console.log(`➡️ Logging out ${req.session.user.email}`);
     // Destroy session
     req.session.destroy();
 
@@ -9,9 +9,8 @@ export default async function logout(req, res) {
 
     // Send success response
     res.json({ success: true });
-    console.log(" ✅");
   } catch (error) {
-    console.error(" ❌");
+    console.error("❌ Logout failed");
     res.status(500).json({ success: false, error: "Logout failed" });
   }
 }

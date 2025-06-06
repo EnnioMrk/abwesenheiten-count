@@ -1,9 +1,9 @@
-import { getDb } from '../../helpers/db';
+import { getDb } from "../../helpers/db";
 
 export default async function getUserInfo(req, res) {
   const email = req.session.user.email;
-  
-  process.stdout.write(`➡️ Getting user info for ${email}`);
+
+  console.log(`➡️ Getting user info for ${email}`);
 
   try {
     const query = `
@@ -16,12 +16,12 @@ export default async function getUserInfo(req, res) {
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
-        error: 'User not found'
+        error: "User not found",
       });
     }
 
     const user = result.rows[0];
-    console.log(' ✅');
+
     res.json({
       success: true,
       user: {
@@ -29,14 +29,14 @@ export default async function getUserInfo(req, res) {
         firstName: user.first_name,
         lastName: user.last_name,
         plan: user.plan,
-        subscriptionStatus: user.subscription_status
-      }
+        subscriptionStatus: user.subscription_status,
+      },
     });
   } catch (error) {
-    console.log(' ❌');
+    console.log("❌ Failed to get user information");
     res.status(500).json({
       success: false,
-      error: 'Failed to get user information'
+      error: "Failed to get user information",
     });
   }
 }

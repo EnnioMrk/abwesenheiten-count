@@ -1,0 +1,338 @@
+
+<!-- Bundled with Bun at 2025-06-05T10:39:13.650Z -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>QR Code Login</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script
+            src="https://unpkg.com/html5-qrcode"
+            type="text/javascript"
+        ></script>
+        
+<style>
+/* Bundled from public/untis-login/css/style.css */
+#qr-reader.flip > video {
+    transform: scaleX(-1);
+}
+
+</style>
+</head>
+    <body class="bg-gray-100 min-h-screen p-4 md:p-6">
+        <div
+            class="max-w-lg mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6"
+        >
+            <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">
+                QR Code Login
+            </h1>
+
+            <div class="flex border-b border-gray-200 mb-6">
+                <button
+                    class="tab-btn active py-2 px-4 font-medium text-blue-600 border-b-2 border-blue-500 focus:outline-none"
+                    data-tab="upload"
+                >
+                    Upload QR Code
+                </button>
+                <button
+                    class="tab-btn py-2 px-4 font-medium text-gray-500 hover:text-blue-600 focus:outline-none"
+                    data-tab="scan"
+                >
+                    Scan QR Code
+                </button>
+            </div>
+
+            <div class="tab-content active" id="upload">
+                <div
+                    class="upload-area border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition-colors relative"
+                >
+                    <input
+                        type="file"
+                        id="qr-input"
+                        accept="image/*"
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <label
+                        for="qr-input"
+                        class="text-gray-500 flex flex-col items-center"
+                    >
+                        <svg
+                            class="w-12 h-12 text-gray-400 mb-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            ></path>
+                        </svg>
+                        Choose a QR code or drop it here
+                    </label>
+                </div>
+            </div>
+
+            <div class="tab-content hidden" id="scan">
+                <div
+                    id="qr-reader"
+                    class="w-full mb-4 overflow-hidden rounded-lg"
+                ></div>
+                <div class="flex space-x-4">
+                    <button
+                        id="start-scan"
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                    >
+                        Start Camera
+                    </button>
+                    <button
+                        id="stop-scan"
+                        disabled
+                        class="bg-gray-300 text-gray-500 font-medium py-2 px-4 rounded-lg cursor-not-allowed"
+                    >
+                        Stop Camera
+                    </button>
+                    <button
+                        id="flip-camera"
+                        class="bg-gray-300 text-gray-500 font-medium py-2 px-4 rounded-lg cursor-not-allowed hidden"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-5 w-5 inline"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                            />
+                        </svg>
+                        Flip Camera
+                    </button>
+                </div>
+            </div>
+            <div class="mt-8 bg-gray-50 rounded-lg p-4 hidden">
+                <h2 class="text-lg font-medium text-gray-700 mb-2">Result</h2>
+                <div
+                    id="result-text"
+                    class="bg-gray-100 p-3 rounded text-gray-700 font-mono text-sm break-all"
+                >
+                    No QR code scanned yet
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Keep the original tab functionality
+            document.addEventListener('DOMContentLoaded', () => {
+                const tabBtns = document.querySelectorAll('.tab-btn');
+                const tabContents = document.querySelectorAll('.tab-content');
+
+                tabBtns.forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const tabId = btn.getAttribute('data-tab');
+
+                        // Update active tab button
+                        tabBtns.forEach((b) => {
+                            b.classList.remove(
+                                'active',
+                                'text-blue-600',
+                                'border-blue-500'
+                            );
+                            b.classList.add('text-gray-500');
+                        });
+                        btn.classList.add(
+                            'active',
+                            'text-blue-600',
+                            'border-b-2',
+                            'border-blue-500'
+                        );
+                        btn.classList.remove('text-gray-500');
+
+                        // Show selected tab content
+                        tabContents.forEach((content) => {
+                            if (content.id === tabId) {
+                                content.classList.remove('hidden');
+                                content.classList.add('block');
+                            } else {
+                                content.classList.add('hidden');
+                                content.classList.remove('block');
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
+    
+<script>
+/* Bundled from public/untis-login/js/index.js */
+(() => {
+  // public/untis-login/js/index.js
+  var tabBtns = document.querySelectorAll(".tab-btn");
+  var tabContents = document.querySelectorAll(".tab-content");
+  var fileInput = document.getElementById("qr-input");
+  var resultText = document.getElementById("result-text");
+  var startScanBtn = document.getElementById("start-scan");
+  var stopScanBtn = document.getElementById("stop-scan");
+  var flipCameraBtn = document.getElementById("flip-camera");
+  var html5QrCode;
+  var currentCameraId;
+  var cameras = [];
+  var currentCameraIndex = 0;
+  tabBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tabId = btn.getAttribute("data-tab");
+      tabBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      tabContents.forEach((content) => {
+        content.classList.remove("active");
+        if (content.id === tabId) {
+          content.classList.add("active");
+        }
+      });
+    });
+  });
+  fileInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file)
+      return;
+    const reader = new FileReader;
+    reader.onload = (e) => {
+      const img = new Image;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        context.drawImage(img, 0, 0, img.width, img.height);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const qrCodeReader = new Html5Qrcode("qr-reader", {
+          formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
+        });
+        qrCodeReader.scanFile(file, true).then((decodedText) => {
+          handleQrResult(decodedText);
+        }).catch((err) => {
+          console.error("Error scanning file:", err);
+          resultText.textContent = "Could not decode QR code from image";
+        });
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  var buttonNormal = "bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50";
+  var buttonDisabled = "bg-gray-300 text-gray-500 font-medium py-2 px-4 rounded-lg cursor-not-allowed";
+  function switchScanMode() {
+    if (startScanBtn.classList.contains("cursor-not-allowed")) {
+      startScanBtn.classList = buttonNormal;
+      stopScanBtn.classList = buttonDisabled;
+      stopScanBtn.disabled = true;
+      startScanBtn.disabled = false;
+    } else {
+      startScanBtn.classList = buttonDisabled;
+      stopScanBtn.classList = buttonNormal;
+      stopScanBtn.disabled = false;
+      startScanBtn.disabled = true;
+    }
+  }
+  document.querySelector('[data-tab="scan"]').addEventListener("click", () => {
+    Html5Qrcode.getCameras().then((devices) => {
+      cameras = devices;
+      if (devices.length > 1) {
+        flipCameraBtn.classList.remove("hidden");
+        flipCameraBtn.disabled = true;
+      } else {
+        flipCameraBtn.classList.add("hidden");
+      }
+      console.log("Available cameras:", devices);
+    }).catch((err) => {
+      console.error("Error getting cameras", err);
+      alert(err);
+    });
+  });
+  startScanBtn.addEventListener("click", () => {
+    html5QrCode = new Html5Qrcode("qr-reader");
+    const cameraId = cameras.length > 0 ? cameras[currentCameraIndex].id : { facingMode: "environment" };
+    currentCameraId = cameraId;
+    html5QrCode.start(cameraId, { fps: 10, qrbox: 250 }, handleQrResult, handleQrError).then(() => {
+      switchScanMode();
+      if (cameras.length > 1) {
+        flipCameraBtn.classList = buttonNormal;
+        flipCameraBtn.disabled = false;
+      }
+    });
+  });
+  stopScanBtn.addEventListener("click", () => {
+    if (html5QrCode) {
+      html5QrCode.stop().then(() => {
+        switchScanMode();
+        flipCameraBtn.classList = buttonDisabled;
+        flipCameraBtn.disabled = true;
+      }).catch((err) => console.error("Error stopping scanner:", err));
+    }
+  });
+  flipCameraBtn.addEventListener("click", () => {
+    if (html5QrCode && cameras.length > 1) {
+      html5QrCode.stop().then(() => {
+        currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
+        const newCameraId = cameras[currentCameraIndex].id;
+        html5QrCode.start(newCameraId, { fps: 10, qrbox: 250 }, handleQrResult, handleQrError).then(() => {
+          currentCameraId = newCameraId;
+          console.log("Switched to camera:", newCameraId);
+        }).catch((err) => {
+          console.error("Error starting camera:", err);
+          html5QrCode.start(currentCameraId, { fps: 10, qrbox: 250 }, handleQrResult, handleQrError);
+        });
+      });
+    }
+  });
+  function handleQrResult(decodedText) {
+    console.log("QR Code detected, URL:", decodedText);
+    resultText.textContent = decodedText;
+    if (html5QrCode && !stopScanBtn.disabled) {
+      html5QrCode.stop().then(() => {
+        switchScanMode();
+        flipCameraBtn.classList = buttonDisabled;
+        flipCameraBtn.disabled = true;
+      });
+    }
+    logQrUrl(decodedText);
+    decodedText = decodedText.replace("untis://setschool?", "");
+    const options = {};
+    new URLSearchParams(decodedText).forEach((value, key) => {
+      options[key] = value;
+    });
+    console.log(options);
+  }
+  function handleQrError(err) {
+    console.warn(err);
+  }
+  function logQrUrl(url) {
+    console.log("QR URL logged:", url);
+    fetch("/api/user/save-qr", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ url })
+    }).then((res) => res.json()).then((result) => {
+      if (result) {
+        console.log(result);
+        window.location.href = "/dashboard";
+      }
+    });
+  }
+  var ismobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  var cls = ismobile ? "" : "flip";
+  document.getElementById("qr-reader").classList.add(cls);
+})();
+
+</script>
+</body>
+</html>
