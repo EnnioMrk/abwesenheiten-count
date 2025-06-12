@@ -333,59 +333,36 @@ function renderChart(data) {
     // Style the chart series
     absenceChart.on('draw', function (context) {
         if (context.type === 'bar') {
+            const strokeWidth =
+                (absenceChart.container.firstElementChild.firstElementChild.getBoundingClientRect()
+                    .height *
+                    0.7) /
+                context.series.length;
+            context.element.attr({
+                style: `stroke-width: ${Math.round(strokeWidth)}px;`,
+            });
             // Apply different colors for different series with borders
             if (context.seriesIndex === 0) {
                 // Absences - modern coral red with darker border
                 context.element.attr({
-                    style: 'stroke: #ff6b6b; stroke-width: 30px; fill: none;',
+                    style:
+                        context.element._node.style.cssText +
+                        'stroke: #ff6b6b; fill: none;',
                 });
-                // Add border by creating a slightly larger background bar
-                context.element.parent().elem(
-                    'line',
-                    {
-                        x1: context.x1,
-                        x2: context.x2,
-                        y1: context.y1,
-                        y2: context.y2,
-                        style: 'stroke: #e03131; stroke-width: 32px; opacity: 0.8;',
-                    },
-                    '',
-                    true
-                );
             } else if (context.seriesIndex === 1) {
                 // Attended - vibrant teal with darker border
                 context.element.attr({
-                    style: 'stroke: #51cf66; stroke-width: 30px; fill: none;',
+                    style:
+                        context.element._node.style.cssText +
+                        'stroke: #51cf66; fill: none;',
                 });
-                context.element.parent().elem(
-                    'line',
-                    {
-                        x1: context.x1,
-                        x2: context.x2,
-                        y1: context.y1,
-                        y2: context.y2,
-                        style: 'stroke: #37b24d; stroke-width: 32px; opacity: 0.8;',
-                    },
-                    '',
-                    true
-                );
             } else if (context.seriesIndex === 2) {
                 // Cancelled - subtle blue-gray with darker border
                 context.element.attr({
-                    style: 'stroke: #74c0fc; stroke-width: 30px; fill: none;',
+                    style:
+                        context.element._node.style.cssText +
+                        'stroke: #74c0fc; fill: none;',
                 });
-                context.element.parent().elem(
-                    'line',
-                    {
-                        x1: context.x1,
-                        x2: context.x2,
-                        y1: context.y1,
-                        y2: context.y2,
-                        style: 'stroke: #339af0; stroke-width: 32px; opacity: 0.8;',
-                    },
-                    '',
-                    true
-                );
             }
         }
     });
