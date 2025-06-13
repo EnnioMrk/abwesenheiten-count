@@ -77,7 +77,6 @@ const attendanceWarnings = new Map([
 ]);
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Recommender JS loaded');
     showLoadingState();
     fetchAbsenceData();
 });
@@ -167,7 +166,6 @@ async function fetchAbsenceData() {
             );
         }
         const rawAbsenceData = await absenceResponse.json();
-        console.log('Raw absence data fetched:', rawAbsenceData);
 
         // Fetch lesson data
         const lessonResponse = await fetch('/api/untis/lessons/all');
@@ -177,7 +175,6 @@ async function fetchAbsenceData() {
             );
         }
         const rawLessonData = await lessonResponse.json();
-        console.log('Raw lesson data fetched:', rawLessonData);
 
         // Check if data is available
         if (
@@ -189,7 +186,6 @@ async function fetchAbsenceData() {
             const analyser = new annalyser(rawAbsenceData);
             analyser.processAbsencesData(rawAbsenceData);
             const absenceCountsBySubject = analyser.getAbsencesBySubject();
-            console.log('Processed absence counts:', absenceCountsBySubject);
 
             // Process lesson data
             const subjects = new Set();
@@ -226,8 +222,6 @@ async function fetchAbsenceData() {
                     };
                 })
                 .filter((item) => item.total_lessons > 0);
-
-            console.log('Combined processed data for chart:', processedData);
 
             if (processedData.length > 0) {
                 renderChart(processedData);
@@ -341,36 +335,139 @@ function renderChart(data) {
             context.element.attr({
                 style: `stroke-width: ${Math.round(strokeWidth)}px;`,
             });
-            // Apply different colors for different series with borders
-            if (context.seriesIndex === 0) {
-                // Absences - modern coral red with darker border
+
+            // Get the bar dimensions for creating border
+            const barElement = context.element._node;
+            const x1 = parseFloat(barElement.getAttribute('x1'));
+            const y1 = parseFloat(barElement.getAttribute('y1'));
+            const x2 = parseFloat(barElement.getAttribute('x2'));
+            const y2 = parseFloat(barElement.getAttribute('y2'));
+
+            // Calculate border dimensions one border width smaller
+            const borderThickness = 2;
+            const borderY =
+                Math.min(y1, y2) - strokeWidth / 2 + borderThickness / 2;
+            const borderHeight = strokeWidth - borderThickness;
+            const borderX = Math.min(x1, x2);
+            const borderWidth = Math.abs(x2 - x1) - borderThickness;
+
+            // Check for overlapping borders (in stacked bars)
+            const isFirstSeries = context.seriesIndex === 0;
+            const isLastSeries = context.seriesIndex === 2;
+
+            // Function to apply bar styling
+            const applyBarStyling = (fillColor) => {
                 context.element.attr({
                     style:
                         context.element._node.style.cssText +
-                        'stroke: #ff6b6b; fill: none;',
+                        `stroke: ${fillColor};`,
                 });
-            } else if (context.seriesIndex === 1) {
-                // Attended - vibrant teal with darker border
-                context.element.attr({
-                    style:
-                        context.element._node.style.cssText +
-                        'stroke: #51cf66; fill: none;',
-                });
-            } else if (context.seriesIndex === 2) {
-                // Cancelled - subtle blue-gray with darker border
-                context.element.attr({
-                    style:
-                        context.element._node.style.cssText +
-                        'stroke: #74c0fc; fill: none;',
-                });
-            }
+            };
+
+            // Function to create border lines
+            const createBorderLines = (strokeColor) => {
+                const group = context.group;
+
+                // Top border (always present)
+                group.elem(
+                    'line',
+                    {
+                        x1: borderX,
+                        y1: borderY,
+                        x2: isLastSeries
+                            ? borderX + borderWidth
+                            : borderX + borderWidth + borderThickness,
+                        y2: borderY,
+                        stroke: strokeColor,
+                        'stroke-width': borderThickness,
+                    },
+                    'ct-bar-border-top'
+                );
+
+                // Bottom border (always present)
+                group.elem(
+                    'line',
+                    {
+                        x1: borderX,
+                        y1: borderY + borderHeight,
+                        x2: isLastSeries
+                            ? borderX + borderWidth
+                            : borderX + borderWidth + borderThickness,
+                        y2: borderY + borderHeight,
+                        stroke: strokeColor,
+                        'stroke-width': borderThickness,
+                    },
+                    'ct-bar-border-bottom'
+                );
+
+                // Left border (only if not overlapping with previous segment)
+                if (isFirstSeries) {
+                    group.elem(
+                        'line',
+                        {
+                            x1: borderX + borderThickness / 2,
+                            y1: borderY,
+                            x2: borderX + borderThickness / 2,
+                            y2: borderY + borderHeight,
+                            stroke: strokeColor,
+                            'stroke-width': borderThickness,
+                        },
+                        'ct-bar-border-left'
+                    );
+                }
+
+                // Right border (only if not overlapping with next segment)
+                if (isLastSeries) {
+                    group.elem(
+                        'line',
+                        {
+                            x1: borderX + borderWidth + borderThickness / 2,
+                            y1: borderY - borderThickness / 2,
+                            x2: borderX + borderWidth + borderThickness / 2,
+                            y2: borderY + borderHeight + borderThickness / 2,
+                            stroke: strokeColor,
+                            'stroke-width': borderThickness,
+                        },
+                        'ct-bar-border-right'
+                    );
+                }
+            };
+
+            // Function to style series with consistent colors
+            const styleSeriesWithBorder = (
+                seriesIndex,
+                fillColor,
+                strokeColor
+            ) => {
+                if (context.seriesIndex === seriesIndex) {
+                    applyBarStyling(fillColor);
+                    createBorderLines(strokeColor);
+                    return true;
+                }
+                return false;
+            };
+
+            // Apply styling for each series
+            styleSeriesWithBorder(
+                0,
+                'rgba(248, 113, 113,0.5)',
+                'rgb(248, 113, 113)'
+            ) || // Absences - modern coral red
+                styleSeriesWithBorder(
+                    1,
+                    'rgba(99, 102, 241,0.5)',
+                    'rgb(99, 102, 241)'
+                ) || // Attended - vibrant teal
+                styleSeriesWithBorder(
+                    2,
+                    'rgba(156, 163, 175,0.5)',
+                    'rgb(156, 163, 175)'
+                ); // Cancelled - subtle blue-gray
         }
     });
 
     // Add responsive behavior
     absenceChart.on('created', function () {
-        console.log('Horizontal stacked bar chart rendered with Chartist.');
-
         // Force full width by updating SVG dimensions and positioning
         const svgElement = document.querySelector('#recommenderChart svg');
         const container = document.getElementById('recommenderChart');
