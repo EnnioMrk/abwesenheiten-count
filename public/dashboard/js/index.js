@@ -1,5 +1,8 @@
 //let currentDevice = "desktop"; // Default to desktop view
 
+// Create a DashboardGrid instance
+const dashboardGrid = new DashboardGrid();
+
 let widgets = [];
 let widgetsLoaded = false;
 let previousDeviceType; // Variable to track the previous device type
@@ -34,13 +37,19 @@ async function fetchDashboardData(noCache = false) {
             `/api/untis/timetable/year${cacheParam}`
         );
         const timetableJson = await timetableResponse.json();
+        analyser.timetableData = timetableJson;
         timetableData = timetableJson;
 
         // Load dashboard configuration
-        loadDashboardConfig();
+        dashboardGrid.loadDashboardConfig();
+
+        // Update absence percentage bar only if data was successfully loaded
+        if (absencesData && timetableData) {
+            updateAbsencePercentageBar();
+        }
 
         // Update the dashboard based on config
-        //await updateDashboardLayout();
+        //await dashboardGrid.updateDashboardLayout();
         return;
     } catch (error) {
         console.error('Error fetching dashboard data:', error);
@@ -53,18 +62,60 @@ async function fetchDashboardData(noCache = false) {
     }
 }
 
-// Load dashboard configuration from localStorage
-function loadDashboardConfig() {
-    const configJson = localStorage.getItem('dashboard-config');
-    if (configJson) {
-        try {
-            dashboardConfig = JSON.parse(configJson);
-            console.log('Dashboard configuration loaded:', dashboardConfig);
-        } catch (error) {
-            console.error('Error parsing dashboard config:', error);
-            dashboardConfig = null;
-        }
+// Function to update the absence percentage bar
+function updateAbsencePercentageBar() {
+    // Check if data is available
+    if (
+        !absencesData ||
+        !timetableData ||
+        absencesData.length === undefined ||
+        timetableData.length === undefined
+    ) {
+        console.warn('Absence or timetable data not available yet');
+        return;
     }
+
+    const absencePercentage = analyser.getTotalAbsencePercentage();
+    const severity = analyser.getAbsenceSeverity(absencePercentage);
+
+    // Get DOM elements
+    const barContainer = document.getElementById('absencePercentageBar');
+    const percentageText = document.getElementById('absencePercentageText');
+    const percentageFill = document.getElementById('absencePercentageFill');
+    const absenceStats = document.getElementById('absenceStats');
+    const severityText = document.getElementById('absenceSeverityText');
+
+    if (
+        !barContainer ||
+        !percentageText ||
+        !percentageFill ||
+        !absenceStats ||
+        !severityText
+    ) {
+        console.error('Absence percentage bar elements not found');
+        return;
+    }
+
+    // Update text content
+    percentageText.textContent = `${absencePercentage}%`;
+    percentageText.style.color = severity.color;
+
+    // Update stats
+    const totalAbsences = absencesData.length;
+    const totalLessons = timetableData.length;
+    absenceStats.textContent = `${totalAbsences} absences out of ${totalLessons} total lessons`;
+
+    // Update severity text
+    severityText.textContent =
+        severity.level.charAt(0).toUpperCase() + severity.level.slice(1);
+    severityText.style.color = severity.color;
+
+    // Update progress bar - simple and clean
+    percentageFill.style.width = `${Math.min(absencePercentage, 100)}%`;
+    percentageFill.style.backgroundColor = severity.color;
+
+    // Show the bar with simple fade-in
+    barContainer.style.display = 'block';
 }
 
 // Initialize chart instances object to track all charts
@@ -85,14 +136,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await fetchDashboardData();
 
-    initGrids(); // Initializes both grids, hides them, then shows the correct one
+    dashboardGrid.initGrids(); // Initializes both grids, hides them, then shows the correct one
 
     // Store the initial device type
-    previousDeviceType = detectDeviceType();
+    previousDeviceType = dashboardGrid.detectDeviceType();
 
-    loadDashboardConfig();
+    dashboardGrid.loadDashboardConfig();
 
-    loadDefaultLayout(previousDeviceType); // Load layout for the initial device
+    dashboardGrid.loadDefaultLayout(previousDeviceType); // Load layout for the initial device
 
     //updateDashboardLayout();
 
@@ -103,8 +154,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editButton = document.getElementById('editToggle');
     if (editButton) {
         editButton.addEventListener('click', () => {
-            const currentDeviceType = detectDeviceType();
-            const grid = grids[currentDeviceType];
+            const currentDeviceType = dashboardGrid.detectDeviceType();
+            const grid = dashboardGrid.grids[currentDeviceType];
             if (grid) {
                 const isStatic = grid.opts.staticGrid; // Corrected property access
                 grid.setStatic(!isStatic);
@@ -123,7 +174,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Add resize event listener
     window.addEventListener('resize', () => {
-        const currentDeviceType = detectDeviceType();
+        const currentDeviceType = dashboardGrid.detectDeviceType();
         if (currentDeviceType !== previousDeviceType) {
             console.log(
                 `Device changed from ${previousDeviceType} to ${currentDeviceType}`
@@ -142,16 +193,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentGrid.classList.remove('hidden');
                 // Check if the grid for the new device type is empty and load default layout if needed
                 if (
-                    grids[currentDeviceType] &&
-                    grids[currentDeviceType].engine.nodes.length === 0
+                    dashboardGrid.grids[currentDeviceType] &&
+                    dashboardGrid.grids[currentDeviceType].engine.nodes
+                        .length === 0
                 ) {
                     console.log(
                         `Loading default layout for ${currentDeviceType} as it was empty.`
                     );
-                    loadDefaultLayout(currentDeviceType);
+                    dashboardGrid.loadDefaultLayout(currentDeviceType);
                 } else {
                     // Potentially trigger layout adjustments or reloads if necessary for the new grid
-                    // Example: grids[currentDeviceType]?.engine.updateEngine();
+                    // Example: dashboardGrid.grids[currentDeviceType]?.engine.updateEngine();
                 }
             }
 
@@ -212,6 +264,11 @@ if (reloadDataBtn) {
 
             // Fetch fresh data without cache
             await fetchDashboardData(true);
+
+            // Update absence percentage bar with fresh data only if data is available
+            if (absencesData && timetableData) {
+                updateAbsencePercentageBar();
+            }
 
             // Refresh all widgets with new data
             if (window.grid) {

@@ -1,6 +1,7 @@
 class annalyser {
-    constructor(absencesData) {
+    constructor(absencesData, timetableData) {
         this.absencesData = absencesData;
+        this.timetableData = timetableData;
     }
 
     capitalizeFirstLetter(val) {
@@ -29,6 +30,7 @@ class annalyser {
         // Sort by date
         result.sort((a, b) => a.date - b.date);
         this.absencesData = result;
+        return result; // Return the processed data
     }
 
     getRecentSubjectAbsences(days) {
@@ -76,6 +78,47 @@ class annalyser {
             subjectCounts[subject] += 1;
         });
         return subjectCounts;
+    } // Calculate total absence percentage based on total lessons and absences
+    getTotalAbsencePercentage() {
+        if (
+            !this.absencesData ||
+            !this.timetableData ||
+            !Array.isArray(this.absencesData) ||
+            !Array.isArray(this.timetableData)
+        ) {
+            return 0;
+        }
+
+        const totalLessons = this.timetableData.length;
+        const totalAbsences = this.absencesData.length;
+
+        if (totalLessons === 0) return 0;
+
+        const percentage = (totalAbsences / totalLessons) * 100;
+        return Math.round(percentage * 100) / 100; // Round to 2 decimal places
+    }
+
+    // Get severity level and color based on absence percentage
+    getAbsenceSeverity(percentage) {
+        if (percentage >= 20) {
+            return {
+                level: 'critical',
+                color: '#DC2626',
+                textColor: '#FEE2E2',
+            }; // Red
+        } else if (percentage >= 15) {
+            return { level: 'high', color: '#EA580C', textColor: '#FED7AA' }; // Orange
+        } else if (percentage >= 10) {
+            return { level: 'medium', color: '#D97706', textColor: '#FEF3C7' }; // Amber
+        } else if (percentage >= 5) {
+            return { level: 'low', color: '#65A30D', textColor: '#DCFCE7' }; // Lime
+        } else {
+            return {
+                level: 'excellent',
+                color: '#059669',
+                textColor: '#D1FAE5',
+            }; // Green
+        }
     }
 
     formatSubjectName(subject) {
