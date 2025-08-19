@@ -1,4 +1,5 @@
 let absenceChart = null;
+const analyser = new annalyser();
 
 // Define the attendance warnings map
 const attendanceWarnings = new Map([
@@ -182,8 +183,7 @@ async function fetchAbsenceData() {
             Object.keys(rawAbsenceData).length > 0 &&
             rawLessonData
         ) {
-            // Use the annalyser class for absences
-            const analyser = new annalyser(rawAbsenceData);
+            analyser.absencesData = rawAbsenceData;
             analyser.processAbsencesData(rawAbsenceData);
             const absenceCountsBySubject = analyser.getAbsencesBySubject();
 
@@ -192,7 +192,7 @@ async function fetchAbsenceData() {
             Object.keys(absenceCountsBySubject).forEach((subject) =>
                 subjects.add(subject)
             );
-            Object.keys(rawLessonData.total || {}).forEach((subject) =>
+            Object.keys(rawLessonData.real || {}).forEach((subject) =>
                 subjects.add(subject)
             );
             Object.keys(rawLessonData.cancelled || {}).forEach((subject) =>
@@ -201,10 +201,12 @@ async function fetchAbsenceData() {
 
             const processedData = Array.from(subjects)
                 .map((subject) => {
-                    const totalLessons = rawLessonData.total?.[subject] || 0;
+                    const totalLessons =
+                        (rawLessonData.real?.[subject] || 0) +
+                        (rawLessonData.cancelled?.[subject] || 0);
                     const cancelledLessons =
                         rawLessonData.cancelled?.[subject] || 0;
-                    const realLessons = totalLessons - cancelledLessons;
+                    const realLessons = rawLessonData.real?.[subject] || 0;
                     const absences = absenceCountsBySubject[subject] || 0;
                     const validAbsences = Math.min(
                         absences,
@@ -505,15 +507,15 @@ function addLegend() {
         'chart-legend flex flex-wrap justify-center gap-4 mt-2 mb-2 text-sm';
     legend.innerHTML = `
         <div class="flex items-center">
-            <div class="w-4 h-4 mr-2 rounded" style="background-color: #ff6b6b;"></div>
+            <div class="w-4 h-4 mr-2 rounded" style="background-color: rgba(248, 113, 113, 0.8); border: 1px solid rgb(248, 113, 113);"></div>
             <span>Absences</span>
         </div>
         <div class="flex items-center">
-            <div class="w-4 h-4 mr-2 rounded" style="background-color: #51cf66;"></div>
+            <div class="w-4 h-4 mr-2 rounded" style="background-color: rgba(99, 102, 241, 0.8); border: 1px solid rgb(99, 102, 241);"></div>
             <span>Attended</span>
         </div>
         <div class="flex items-center">
-            <div class="w-4 h-4 mr-2 rounded" style="background-color: #74c0fc;"></div>
+            <div class="w-4 h-4 mr-2 rounded" style="background-color: rgba(156, 163, 175, 0.8); border: 1px solid rgb(156, 163, 175);"></div>
             <span>Cancelled</span>
         </div>
     `;

@@ -259,6 +259,259 @@
             .ui-resizable-sw {
                 left: 0.5rem !important;
                 bottom: 0.5rem !important;
+                transform: rotate(-45deg) !important;
+            }
+
+            /* Widget Selector Styles */
+            .widget-selector {
+                transition: all 0.3s ease;
+                border-color: #e5e7eb;
+            }
+
+            .widget-selector.show {
+                border-color: #3b82f6;
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            }
+
+            .widget-item {
+                background: white;
+                border-radius: 0.5rem;
+                border: 2px solid #e5e7eb;
+                padding: 1rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                min-height: 100px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .widget-item:hover {
+                border-color: #93c5fd;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+                transform: scale(1.05);
+                background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            }
+
+            .widget-item:focus {
+                outline: 2px solid #3b82f6;
+                outline-offset: 2px;
+                border-color: #3b82f6;
+            }
+
+            .widget-item:focus:not(:focus-visible) {
+                outline: none;
+            }
+
+            .widget-item-icon {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+                color: #6b7280;
+                transition: color 0.2s ease;
+            }
+
+            .widget-item:hover .widget-item-icon {
+                color: #3b82f6;
+            }
+
+            .widget-item-title {
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: #374151;
+                line-height: 1.2;
+            }
+
+            .widget-item-description {
+                font-size: 0.75rem;
+                color: #6b7280;
+                margin-top: 0.25rem;
+                display: none;
+            }
+
+            @media (min-width: 640px) {
+                .widget-item-description {
+                    display: block;
+                }
+            }
+
+            /* Disabled widget styles */
+            .widget-item-disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                background: #f9fafb;
+                border-color: #d1d5db;
+            }
+
+            .widget-item-disabled:hover {
+                transform: none;
+                box-shadow: none;
+                border-color: #d1d5db;
+                background: #f9fafb;
+            }
+
+            .widget-item-disabled .widget-item-icon {
+                color: #9ca3af;
+            }
+
+            .widget-item-disabled:hover .widget-item-icon {
+                color: #9ca3af;
+            }
+
+            .widget-item-disabled .widget-item-title {
+                color: #6b7280;
+            }
+
+            /* Status badge styles */
+            .widget-status-badge {
+                position: absolute;
+                top: 0.5rem;
+                right: 0.5rem;
+                background: #ef4444;
+                color: white;
+                font-size: 0.625rem;
+                font-weight: 500;
+                padding: 0.125rem 0.375rem;
+                border-radius: 0.25rem;
+                line-height: 1;
+                z-index: 10;
+            }
+
+            /* Drag and Drop Visual Feedback */
+            .grid-container.drag-over {
+                background: linear-gradient(
+                        45deg,
+                        rgba(59, 130, 246, 0.1) 25%,
+                        transparent 25%
+                    ),
+                    linear-gradient(
+                        -45deg,
+                        rgba(59, 130, 246, 0.1) 25%,
+                        transparent 25%
+                    ),
+                    linear-gradient(
+                        45deg,
+                        transparent 75%,
+                        rgba(59, 130, 246, 0.1) 75%
+                    ),
+                    linear-gradient(
+                        -45deg,
+                        transparent 75%,
+                        rgba(59, 130, 246, 0.1) 75%
+                    );
+                background-size: 20px 20px;
+                background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+                border: 2px solid #3b82f6;
+                border-radius: 0.5rem;
+                animation: dragOverPulse 1s ease-in-out infinite alternate;
+            }
+
+            @keyframes dragOverPulse {
+                from {
+                    background-color: rgba(59, 130, 246, 0.05);
+                }
+                to {
+                    background-color: rgba(59, 130, 246, 0.1);
+                }
+            }
+
+            .drop-zone-hint {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(59, 130, 246, 0.95);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 0.5rem;
+                font-weight: 500;
+                z-index: 1000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .grid-container.drag-over .drop-zone-hint {
+                opacity: 1;
+            }
+
+            /* Dragging widget feedback */
+            .widget-item.dragging {
+                opacity: 0.5;
+                transform: rotate(5deg) scale(0.9);
+                z-index: 1000;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            }
+
+            /* Smooth transitions */
+            .widget-item {
+                transition: all 0.2s ease;
+            }
+
+            .widget-item:not(.dragging):hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Mobile Responsive Improvements */
+            @media (max-width: 640px) {
+                .widget-selector {
+                    margin: 0 -1rem;
+                    border-radius: 0;
+                    border-left: none;
+                    border-right: none;
+                }
+
+                .widget-item {
+                    min-height: 80px;
+                    padding: 0.75rem;
+                }
+
+                .widget-item-icon {
+                    font-size: 1.5rem;
+                    margin-bottom: 0.25rem;
+                }
+
+                .widget-item-title {
+                    font-size: 0.8rem;
+                }
+
+                /* Improve touch targets */
+                .widget-item {
+                    min-height: 88px; /* Minimum touch target size */
+                }
+            }
+
+            /* Tablet Responsive Improvements */
+            @media (min-width: 641px) and (max-width: 1024px) {
+                .widget-item {
+                    min-height: 90px;
+                }
+            }
+
+            /* Animation for widget selector show/hide */
+            .widget-selector {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease, padding 0.3s ease,
+                    margin 0.3s ease;
+            }
+
+            .widget-selector.show {
+                max-height: 500px; /* Adjust based on content */
+            }
+
+            .widget-selector.hidden {
+                max-height: 0;
+                padding-top: 0;
+                padding-bottom: 0;
+                margin-top: 0;
+                margin-bottom: 0;
             }
         </style>
         <style type="text/tailwind">
@@ -344,7 +597,7 @@
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
-                                    d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+                                    d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3 0 11-7.5 0 3.75 3.75 0 017.5 0z"
                                 />
                             </svg>
                         </div>
@@ -438,6 +691,67 @@
         </div>
 
         <main class="container mx-auto p-6 min-h-[calc(100vh-15rem)]">
+            <!-- Widget Selector Panel (hidden by default, shown in edit mode) -->
+            <div
+                id="widgetSelector"
+                class="widget-selector hidden mb-6 bg-white rounded-lg shadow-lg border-2 border-dashed border-gray-300 p-4"
+            >
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4"
+                >
+                    <h3
+                        class="text-lg font-semibold text-gray-800 mb-2 sm:mb-0"
+                    >
+                        Add Widgets
+                    </h3>
+                    <div class="text-sm text-gray-600">
+                        <span class="hidden sm:inline"
+                            >Drag & drop or click to add</span
+                        >
+                        <span class="sm:hidden">Tap to add widgets</span>
+                    </div>
+                </div>
+
+                <!-- Search/Filter -->
+                <div class="mb-4 sm:hidden">
+                    <!-- Only show on mobile for now -->
+                    <input
+                        type="text"
+                        id="widgetSearch"
+                        placeholder="Search widgets..."
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                </div>
+
+                <!-- Widget Grid -->
+                <div
+                    id="availableWidgets"
+                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3"
+                >
+                    <!-- Widgets will be populated here -->
+                </div>
+
+                <!-- Loading state -->
+                <div id="widgetSelectorLoading" class="hidden">
+                    <div class="flex items-center justify-center py-8">
+                        <div
+                            class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+                        ></div>
+                        <span class="ml-2 text-gray-600"
+                            >Loading widgets...</span
+                        >
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div id="widgetSelectorEmpty" class="hidden text-center py-8">
+                    <div class="text-gray-500 mb-2">No widgets found</div>
+                    <div class="text-sm text-gray-400">
+                        Try adjusting your search
+                    </div>
+                </div>
+            </div>
+
             <!-- Skeleton Loading State -->
             <div
                 id="skeletonLoader"

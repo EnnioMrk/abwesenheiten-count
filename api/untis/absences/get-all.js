@@ -1,7 +1,5 @@
-import { getAbsences } from "../../../helpers/untis";
+import { untisController } from '../../../src/controllers/index.js';
 
-export default async function getToday(req, res) {
-  const email = req.session.user.email;
-  const absenceData = await getAbsences(email);
-  res.json(absenceData);
+export default async function getAbsences(req, res) {
+    return await untisController.getAbsences(req, res);
 }

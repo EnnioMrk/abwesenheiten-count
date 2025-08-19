@@ -1,0 +1,17 @@
+<div
+    class="w-full h-full flex flex-col items-center bg-theme-background-dark drop-shadow-md rounded-xl p-2"
+    data-widget="last-x-days"
+>
+    <div class="flex items-center justify-between w-full mb-4">
+        <h2 class="text-xl font-semibold x-days-title">Last 7 Days</h2>
+        <select
+            class="x-days-timespan-selector hidden bg-theme-background-light border border-theme-border rounded px-2 py-1 text-sm"
+        >
+            <option value="7">Last 7 Days</option>
+            <option value="14">Last 14 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+        </select>
+    </div>
+    <div class="ct-chart !h-full w-full x-days-chart"></div>
+</div>

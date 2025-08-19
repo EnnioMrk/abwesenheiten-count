@@ -1,7 +1,5 @@
-import { getYearTimetable } from "../../../helpers/untis";
+import { untisController } from '../../../src/controllers/index.js';
 
-export default async function getYear(req, res) {
-  const email = req.session.user.email;
-  const year = await getYearTimetable(email);
-  res.json(year);
+export default async function getYearTimetable(req, res) {
+    return await untisController.getYearTimetable(req, res);
 }

@@ -1,7 +1,5 @@
-import { getTodayTimetable } from "../../../helpers/untis";
+import { untisController } from '../../../src/controllers/index.js';
 
-export default async function getToday(req, res) {
-  const email = req.session.user.email;
-  const today = await getTodayTimetable(email);
-  res.json(today);
+export default async function getTodayTimetable(req, res) {
+    return await untisController.getTodayTimetable(req, res);
 }

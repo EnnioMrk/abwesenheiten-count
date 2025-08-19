@@ -1,83 +1,78 @@
 <div
-  class="w-full h-full flex items-center bg-theme-background-dark drop-shadow-md rounded-xl p-2"
+    class="w-full h-full flex items-center bg-theme-background-dark drop-shadow-md rounded-xl p-2"
 >
-  <div
-    class="w-full h-full bg-theme-background-darker p-4 rounded-lg drop-shadow-md"
-  >
-    <div class="grid gap-3 h-full" id="summarySection"></div>
-  </div>
+    <div
+        class="w-full h-full bg-theme-background-darker p-4 rounded-lg drop-shadow-md"
+    >
+        <div class="grid gap-3 h-full" id="summarySection"></div>
+    </div>
 </div>
 <style>
-  .summaryCardTrend {
-    display: flex;
-    align-items: center;
-    font-size: 0.875rem;
-    opacity: 0.85;
-    transition: opacity 0.2s ease;
-  }
+    .summaryCardTrend {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+        opacity: 0.85;
+    }
 
-  .summaryCardTrend svg {
-    margin-right: 0.25rem;
-  }
+    .summaryCardTrend svg {
+        margin-right: 0.25rem;
+    }
 
-  .summaryCard:hover .summaryCardTrend {
-    opacity: 1;
-  }
-
-  .summaryCard:hover .summaryCardIcon {
-    transform: scale(1.1);
-  }
+    .summaryCard:hover .summaryCardTrend {
+        opacity: 1;
+    }
 </style>
 <template id="summaryTemplate">
-  <div
-    class="summaryCard fade-in fade-in-delay-1 p-[10%] lg:p-[7%] bg-theme-background-light drop-shadow-lg w-full h-full"
-  >
-    <div class="flex flex-col justify-between items-start w-auto h-full">
-      <div class="flex justify-between w-full">
-        <div>
-          <h3
-            class="summaryCardTitle text-gray-500 text-sm font-medium uppercase tracking-wide"
-          ></h3>
-          <p
-            class="summaryCardCount text-3xl md:text-4xl lg:text-5xl font-bold"
-          >
-            -
-          </p>
+    <div
+        class="summaryCard p-[10%] lg:p-[7%] bg-theme-background-light drop-shadow-lg w-full h-full"
+    >
+        <div class="flex flex-col justify-between items-start w-auto h-full">
+            <div class="flex justify-between w-full">
+                <div>
+                    <h3
+                        class="summaryCardTitle text-gray-500 text-sm font-medium uppercase tracking-wide"
+                    ></h3>
+                    <p
+                        class="summaryCardCount text-3xl md:text-4xl lg:text-5xl font-bold"
+                    >
+                        -
+                    </p>
+                </div>
+                <div
+                    class="summaryCardIcon lg:w-16 lg:h-16 flex items-center justify-center w-12 h-12 rounded-xl"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="w-6 h-6 lg:w-12 lg:h-12"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"
+                        />
+                    </svg>
+                </div>
+            </div>
+            <div class="summaryCardTrend">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    class="w-4 h-4"
+                >
+                    <path
+                        fill-rule="evenodd"
+                        d="M12.577 4.878a.75.75 0 01.919-.53l4.78 1.281a.75.75 0 01.531.919l-1.281 4.78a.75.75 0 01-1.449-.387l.81-3.022a19.407 19.407 0 00-5.594 5.203.75.75 0 01-1.139.093L7 10.06l-4.72 4.72a.75.75 0 01-1.06-1.061l5.25-5.25a.75.75 0 011.06 0l3.074 3.073a20.923 20.923 0 015.545-4.931l-3.042-.815a.75.75 0 01-.53-.919z"
+                        clip-rule="evenodd"
+                    />
+                </svg>
+                <span>No change</span>
+            </div>
         </div>
-        <div
-          class="summaryCardIcon lg:w-16 lg:h-16 flex items-center justify-center w-12 h-12 rounded-xl transition-all"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="w-6 h-6 lg:w-12 lg:h-12"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"
-            />
-          </svg>
-        </div>
-      </div>
-      <div class="summaryCardTrend">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="w-4 h-4"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M12.577 4.878a.75.75 0 01.919-.53l4.78 1.281a.75.75 0 01.531.919l-1.281 4.78a.75.75 0 01-1.449-.387l.81-3.022a19.407 19.407 0 00-5.594 5.203.75.75 0 01-1.139.093L7 10.06l-4.72 4.72a.75.75 0 01-1.06-1.061l5.25-5.25a.75.75 0 011.06 0l3.074 3.073a20.923 20.923 0 015.545-4.931l-3.042-.815a.75.75 0 01-.53-.919z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        <span>No change</span>
-      </div>
     </div>
-  </div>
 </template>

@@ -56,10 +56,12 @@ class annalyser {
 
     filterAbsencesByDays(days, offset = 0) {
         const now = new Date();
-        const startDate = new Date(
-            now.setDate(now.getDate() - days - offset - 1)
-        );
+        const startDate = new Date(now.setDate(now.getDate() - days - offset));
         const endDate = new Date(now.setDate(now.getDate() + days));
+
+        console.log(
+            `Filtering absences from ${startDate.toISOString()} to ${endDate.toISOString()}`
+        );
 
         return this.absencesData.filter((absence) => {
             const absenceDate = new Date(absence.date);
@@ -89,7 +91,9 @@ class annalyser {
             return 0;
         }
 
-        const totalLessons = this.timetableData.length;
+        const totalLessons = this.timetableData.filter(
+            (e) => e.code != 'cancelled'
+        ).length;
         const totalAbsences = this.absencesData.length;
 
         if (totalLessons === 0) return 0;
@@ -134,7 +138,7 @@ class annalyser {
         //capitalize first letter
         return (
             this.capitalizeFirstLetter(subject.toLowerCase()) +
-            (p ? ` (p${p})` : '')
+            (p ? ` (lk)` : '')
         );
     }
 
