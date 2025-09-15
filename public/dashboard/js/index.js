@@ -110,7 +110,7 @@ function updateAbsencePercentageBar() {
     const realLessons = timetableData.filter(
         (e) => e.code != 'cancelled'
     ).length;
-    absenceStats.textContent = `${totalAbsences} absences out of ${realLessons} total lessons`;
+    absenceStats.textContent = `${totalAbsences} absences out of ${realLessons} real lessons`;
 
     // Update severity text
     severityText.textContent =

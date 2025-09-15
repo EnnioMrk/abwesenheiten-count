@@ -1,9 +1,13 @@
 // Create widget instance with scoped functionality
-(function() {
-    const widgetElement = document.currentScript.closest('[data-widget="last-x-days"]');
+(function () {
+    const widgetElement = document.currentScript.closest(
+        '[data-widget="last-x-days"]'
+    );
     const chartElement = widgetElement.querySelector('.x-days-chart');
     const titleElement = widgetElement.querySelector('.x-days-title');
-    const timespanSelector = widgetElement.querySelector('.x-days-timespan-selector');
+    const timespanSelector = widgetElement.querySelector(
+        '.x-days-timespan-selector'
+    );
 
     let currentTimespan = 7;
     let chart;
@@ -70,7 +74,9 @@
     const initialChartOptions = {
         ...window.globalChartOptions,
         high: Math.max(...Object.values(initialData)) * 1.1,
-        plugins: [window.pluginDynamicBarWidth(Object.values(initialData).length)],
+        plugins: [
+            window.pluginDynamicBarWidth(Object.values(initialData).length),
+        ],
     };
 
     createChart(initialData, initialChartData, initialChartOptions);

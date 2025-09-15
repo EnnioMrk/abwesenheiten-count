@@ -7,72 +7,72 @@ const attendanceWarnings = new Map([
         10,
         {
             message: 'Fehlzeiten minimal - Fehlen unbedenklich',
-            bgColor: 'bg-green-100',
-            borderColor: 'border-green-400',
-            textColor: 'text-green-700',
+            bgColor: 'bg-green-50',
+            borderColor: 'border-green-300',
+            textColor: 'text-green-600',
         },
     ],
     [
         9,
         {
             message: 'Fehlzeiten sehr gering - Fehlen in Ordnung',
-            bgColor: 'bg-green-200',
-            borderColor: 'border-green-500',
-            textColor: 'text-green-800',
+            bgColor: 'bg-green-100',
+            borderColor: 'border-green-400',
+            textColor: 'text-green-700',
         },
     ],
     [
         8,
         {
             message: 'Fehlzeiten leicht - erhöhte Vorsicht',
-            bgColor: 'bg-yellow-100',
-            borderColor: 'border-yellow-400',
-            textColor: 'text-yellow-700',
+            bgColor: 'bg-yellow-50',
+            borderColor: 'border-yellow-300',
+            textColor: 'text-yellow-600',
         },
     ],
     [
         7,
         {
             message: 'Fehlzeiten deutlich - Überdenken empfohlen',
-            bgColor: 'bg-yellow-200',
-            borderColor: 'border-yellow-500',
-            textColor: 'text-yellow-800',
+            bgColor: 'bg-yellow-100',
+            borderColor: 'border-yellow-400',
+            textColor: 'text-yellow-700',
         },
     ],
     [
         6,
         {
             message: 'Fehlzeiten hoch - Fehlen nicht ratsam',
-            bgColor: 'bg-orange-100',
-            borderColor: 'border-orange-400',
-            textColor: 'text-orange-700',
+            bgColor: 'bg-orange-50',
+            borderColor: 'border-orange-300',
+            textColor: 'text-orange-600',
         },
     ],
     [
         5,
         {
             message: 'Fehlzeiten kritisch - Fehlen riskant',
-            bgColor: 'bg-orange-200',
-            borderColor: 'border-orange-500',
-            textColor: 'text-orange-800',
+            bgColor: 'bg-orange-100',
+            borderColor: 'border-orange-400',
+            textColor: 'text-orange-700',
         },
     ],
     [
         4,
         {
             message: 'Fehlzeiten extrem - sehr hohe Teilnahme notwendig',
-            bgColor: 'bg-red-100',
-            borderColor: 'border-red-400',
-            textColor: 'text-red-700',
+            bgColor: 'bg-red-50',
+            borderColor: 'border-red-300',
+            textColor: 'text-red-600',
         },
     ],
     [
         3,
         {
             message: 'Fehlzeiten maximal - Teilnahme zwingend',
-            bgColor: 'bg-red-200',
-            borderColor: 'border-red-500',
-            textColor: 'text-red-800',
+            bgColor: 'bg-red-100',
+            borderColor: 'border-red-400',
+            textColor: 'text-red-700',
         },
     ],
 ]);
@@ -157,10 +157,15 @@ function showErrorState(message) {
   `;
 }
 
-async function fetchAbsenceData() {
+async function fetchAbsenceData(bypassCache = false) {
     try {
+        // Add cache-busting parameter if needed
+        const cacheParam = bypassCache ? '?noCache=true' : '';
+
         // Fetch raw absence data
-        const absenceResponse = await fetch('/api/untis/absences/all');
+        const absenceResponse = await fetch(
+            `/api/untis/absences/all${cacheParam}`
+        );
         if (!absenceResponse.ok) {
             throw new Error(
                 `HTTP error fetching absences! status: ${absenceResponse.status}`
@@ -169,7 +174,9 @@ async function fetchAbsenceData() {
         const rawAbsenceData = await absenceResponse.json();
 
         // Fetch lesson data
-        const lessonResponse = await fetch('/api/untis/lessons/all');
+        const lessonResponse = await fetch(
+            `/api/untis/lessons/all${cacheParam}`
+        );
         if (!lessonResponse.ok) {
             throw new Error(
                 `HTTP error fetching lessons! status: ${lessonResponse.status}`
@@ -504,19 +511,19 @@ function addLegend() {
     // Create legend positioned closer to chart
     const legend = document.createElement('div');
     legend.className =
-        'chart-legend flex flex-wrap justify-center gap-4 mt-2 mb-2 text-sm';
+        'chart-legend flex flex-wrap justify-center gap-4 mt-2 mb-2 text-sm text-theme-text';
     legend.innerHTML = `
         <div class="flex items-center">
             <div class="w-4 h-4 mr-2 rounded" style="background-color: rgba(248, 113, 113, 0.8); border: 1px solid rgb(248, 113, 113);"></div>
-            <span>Absences</span>
+            <span class="text-theme-text">Absences</span>
         </div>
         <div class="flex items-center">
             <div class="w-4 h-4 mr-2 rounded" style="background-color: rgba(99, 102, 241, 0.8); border: 1px solid rgb(99, 102, 241);"></div>
-            <span>Attended</span>
+            <span class="text-theme-text">Attended</span>
         </div>
         <div class="flex items-center">
             <div class="w-4 h-4 mr-2 rounded" style="background-color: rgba(156, 163, 175, 0.8); border: 1px solid rgb(156, 163, 175);"></div>
-            <span>Cancelled</span>
+            <span class="text-theme-text">Cancelled</span>
         </div>
     `;
 
@@ -609,5 +616,98 @@ function generateRecommendations(data) {
       <span class="block sm:inline"> ${warning.message} <br><strong class="font-bold">${rationalDisplay}</strong> - ${percentageDisplay}% - ${item.absences} von ${item.real_lessons} Schulstunden</span>
     `;
         recommendationList.appendChild(listItem);
+    });
+}
+
+// Initialize theme functionality
+document.addEventListener('DOMContentLoaded', () => {
+    // Apply saved theme or default
+    const savedTheme = localStorage.getItem('dashboard-theme') || 'light';
+    if (typeof applyTheme === 'function') {
+        applyTheme(savedTheme);
+    }
+});
+
+// Add event listener for the reload data button
+const reloadDataBtn = document.getElementById('reloadDataBtn');
+if (reloadDataBtn) {
+    reloadDataBtn.addEventListener('click', async () => {
+        try {
+            // Disable button and show loading state
+            reloadDataBtn.disabled = true;
+            const originalText = reloadDataBtn.innerHTML;
+            reloadDataBtn.innerHTML = `
+                <svg class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="hidden sm:inline">Reloading...</span>
+            `;
+
+            console.log('🔄 Reloading recommender data...');
+
+            // Clear existing chart
+            if (absenceChart) {
+                clearChart();
+            }
+
+            // Show loading state
+            showLoadingState();
+
+            // Fetch fresh data bypassing cache
+            await fetchAbsenceData(true);
+
+            console.log('✅ Recommender data reloaded successfully');
+
+            // Show success feedback
+            reloadDataBtn.classList.remove(
+                'bg-emerald-500',
+                'hover:bg-emerald-600'
+            );
+            reloadDataBtn.classList.add('bg-green-500');
+            reloadDataBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span class="hidden sm:inline">Reloaded!</span>
+            `;
+
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                reloadDataBtn.disabled = false;
+                reloadDataBtn.classList.remove('bg-green-500');
+                reloadDataBtn.classList.add(
+                    'bg-emerald-500',
+                    'hover:bg-emerald-600'
+                );
+                reloadDataBtn.innerHTML = originalText;
+            }, 2000);
+        } catch (error) {
+            console.error('Error reloading data:', error);
+
+            // Show error state
+            reloadDataBtn.classList.remove(
+                'bg-emerald-500',
+                'hover:bg-emerald-600'
+            );
+            reloadDataBtn.classList.add('bg-red-500');
+            reloadDataBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <span class="hidden sm:inline">Error</span>
+            `;
+
+            // Reset button after 3 seconds
+            setTimeout(() => {
+                reloadDataBtn.disabled = false;
+                reloadDataBtn.classList.remove('bg-red-500');
+                reloadDataBtn.classList.add(
+                    'bg-emerald-500',
+                    'hover:bg-emerald-600'
+                );
+                reloadDataBtn.innerHTML = originalText;
+            }, 3000);
+        }
     });
 }

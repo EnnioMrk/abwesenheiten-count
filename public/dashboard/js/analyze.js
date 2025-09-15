@@ -59,10 +59,6 @@ class annalyser {
         const startDate = new Date(now.setDate(now.getDate() - days - offset));
         const endDate = new Date(now.setDate(now.getDate() + days));
 
-        console.log(
-            `Filtering absences from ${startDate.toISOString()} to ${endDate.toISOString()}`
-        );
-
         return this.absencesData.filter((absence) => {
             const absenceDate = new Date(absence.date);
             return absenceDate >= startDate && absenceDate <= endDate;

@@ -45,9 +45,9 @@
             .skeleton-item {
                 background: linear-gradient(
                     90deg,
-                    #f3f4f6 0%,
-                    #e5e7eb 50%,
-                    #f3f4f6 100%
+                    var(--color-background-light) 0%,
+                    var(--color-background-darker) 50%,
+                    var(--color-background-light) 100%
                 );
                 background-size: 200% 100%;
                 animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -103,12 +103,18 @@
 
             .ct-chart .ct-grid {
                 stroke-width: 1px;
-                stroke: #e5e7eb;
+                stroke: var(--color-background-darker);
             }
 
             .ct-chart .ct-labels {
-                color: #374151;
+                color: var(--color-text);
+                fill: var(--color-text);
                 font-size: 12px;
+            }
+
+            .ct-chart .ct-label {
+                color: var(--color-text);
+                fill: var(--color-text);
             }
 
             .ct-chart .ct-label.ct-vertical {
@@ -174,16 +180,62 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-4">
+                    <!-- Reload Data Button -->
+                    <button
+                        class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg transition-all shadow-md hover:shadow-lg"
+                        id="reloadDataBtn"
+                        title="Reload data"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-4 h-4"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+                            />
+                        </svg>
+                        <span class="hidden sm:inline">Reload</span>
+                    </button>
+
                     <a
                         href="/dashboard/"
                         class="bg-theme-background-light text-theme-primary px-4 py-2 rounded-md hover:bg-theme-background-dark transition-all"
                     >
                         Dashboard
                     </a>
+
+                    <!-- Theme Toggle -->
+                    <div
+                        class="p-2 cursor-pointer rounded-full bg-theme-background-light hover:bg-theme-background-dark hover:rotate-12 transition-all shadow-md hover:shadow-lg"
+                        id="themeToggle"
+                        title="Toggle theme"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-5 h-5 sm:w-6 sm:h-6 stroke-theme-secondary"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
+                            />
+                        </svg>
+                    </div>
+
                     <a
                         id="profile"
                         title="Profile"
-                        class="ml-4 p-1 cursor-pointer rounded-full bg-theme-background-light"
+                        class="p-1 cursor-pointer rounded-full bg-theme-background-light"
                         href="/profile/"
                     >
                         <svg
@@ -206,7 +258,7 @@
 
         <div class="container mx-auto p-4 pt-0">
             <div
-                class="bg-white p-6 rounded-lg shadow-md mb-8 relative overflow-hidden"
+                class="bg-theme-background-light p-6 rounded-lg shadow-md mb-8 relative overflow-hidden"
             >
                 <div
                     id="recommenderChartContainer"
@@ -219,8 +271,10 @@
                 </div>
             </div>
 
-            <div class="bg-white p-8 rounded-lg shadow-md">
-                <h2 class="text-xl font-semibold mb-4">Recommendations</h2>
+            <div class="bg-theme-background-light p-8 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4 text-theme-text">
+                    Recommendations
+                </h2>
                 <ul id="recommendationText" class="list-disc pl-5 space-y-3">
                     <!-- Recommendations will be loaded here -->
                     <li>Loading recommendations...</li>
