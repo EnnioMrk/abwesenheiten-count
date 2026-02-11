@@ -1,18 +1,4 @@
-/*export async function getSchoolYearStart() {
-  //check if current month is after june
-  const date = new Date();
-  let year;
-  if (date.getMonth() > 6) {
-    year = date.getFullYear();
-  } else {
-    year = date.getFullYear() - 1;
-  }
-  const res = await fetch(`https://ferien-api.de/api/v1/holidays/NI/${year}`);
-  const data = await res.json();
-  return data.filter((h) => h.name.includes("sommerferien"))[0].end;
-}*/
-
-export async function getSchoolYearStart() {
+export async function getSchoolYearStart(grade = null) {
     //https://openholidaysapi.org/SchoolHolidays?countryIsoCode=DE&subdivisionCode=DE-NI&languageIsoCode=DE&validFrom=2023-03-04&validTo=2025-03-04URL_ADDRESS
     const date = new Date();
     let year;
@@ -22,10 +8,26 @@ export async function getSchoolYearStart() {
         year = date.getFullYear() - 1;
     }
     const res = await fetch(
-        `https://openholidaysapi.org/SchoolHolidays?countryIsoCode=DE&subdivisionCode=DE-NI&languageIsoCode=DE&validFrom=${year}-01-01&validTo=${year}-12-30`
+        `https://openholidaysapi.org/SchoolHolidays?countryIsoCode=DE&subdivisionCode=DE-NI&languageIsoCode=DE&validFrom=${year}-01-01&validTo=${
+            year + 1
+        }-12-30`
     );
     const data = await res.json();
-    return data.filter((h) => h.name[0].text == 'Sommerferien')[0].endDate;
+
+    let holidayNames = ['Halbjahresferien', 'Sommerferien'];
+    if (grade && grade.startsWith('13')) {
+        holidayNames = ['Weihnachtsferien', 'Sommerferien'];
+    }
+
+    let filteredHolidays = data
+        .filter((h) =>
+            holidayNames.some((name) => h.name[0].text.includes(name))
+        )
+        //endDate is before current date
+        ?.filter((h) => new Date(h.endDate) < new Date())
+        ?.sort((a, b) => new Date(b.endDate) - new Date(a.endDate));
+
+    return filteredHolidays[0]?.endDate;
 }
 
 export async function getAllLessonCount(data) {

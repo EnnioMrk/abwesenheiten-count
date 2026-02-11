@@ -3,7 +3,23 @@ const chartElement = document.getElementById('absencesTrendChart');
 // Function to get cumulative absence percentages for the last 30 days
 function getDailyAbsencePercentages(days = 30) {
     const now = new Date();
-    const startOfYear = new Date(now.getFullYear(), 0, 1); // January 1st of current year
+
+    // Find earliest date in timetable data to use as start of school period
+    let startOfPeriod = new Date(now.getFullYear(), 0, 1); // Default to Jan 1st
+    if (analyser.timetableData && analyser.timetableData.length > 0) {
+        const sortedTimetable = [...analyser.timetableData].sort(
+            (a, b) => a.date - b.date
+        );
+        let firstDate = sortedTimetable[0].date.toString();
+        startOfPeriod = new Date(
+            `${firstDate.slice(0, 4)}-${firstDate.slice(
+                4,
+                6
+            )}-${firstDate.slice(6, 8)}`
+        );
+    }
+
+    const startOfYear = startOfPeriod;
     const dailyData = {};
 
     // Initialize all days in the range with 0 values

@@ -43,21 +43,7 @@ export function getSession(email) {
     return sessions.find((session) => session.email == email);
 }
 
-/*export async function getSchoolYearStart() {
-  //check if current month is after june
-  const date = new Date();
-  let year;
-  if (date.getMonth() > 6) {
-    year = date.getFullYear();
-  } else {
-    year = date.getFullYear() - 1;
-  }
-  const res = await fetch(`https://ferien-api.de/api/v1/holidays/NI/${year}`);
-  const data = await res.json();
-  return data.filter((h) => h.name.includes("sommerferien"))[0].end;
-}*/
-
-export async function getSchoolYearStart() {
+export async function getSchoolYearStart(grade = null) {
     const date = new Date();
     let year;
     if (date.getMonth() > 6) {
@@ -72,12 +58,14 @@ export async function getSchoolYearStart() {
     );
     const data = await res.json();
 
-    //h.endDate =2025-08-13
+    let holidayNames = ['Halbjahresferien', 'Sommerferien'];
+    if (grade && grade.startsWith('13')) {
+        holidayNames = ['Weihnachtsferien', 'Sommerferien'];
+    }
+
     let filteredHolidays = data
-        .filter(
-            (h) =>
-                h.name[0].text == 'Halbjahresferien' ||
-                h.name[0].text == 'Sommerferien'
+        .filter((h) =>
+            holidayNames.some((name) => h.name[0].text.includes(name))
         )
         //endDate is before current date
         ?.filter((h) => new Date(h.endDate) < new Date())
@@ -109,17 +97,72 @@ export async function getUserData(email) {
     logger.info(`Getting user data for ${email}`);
     let session = getSession(email);
 
-    let user = await session.untis
-        .getStudents()
-        .find((s) => s.key == session.untis.username);
+    if (!session) {
+        logger.error(`No session found for ${email}`);
+        return null;
+    }
+
+    let students = await session.untis.getStudents();
+    if (!students || !Array.isArray(students)) return null;
+
+    let user = students.find(
+        (s) =>
+            String(s.key) === String(session.untis.username) ||
+            String(s.name) === String(session.untis.username) ||
+            String(s.id) === String(session.untis.username)
+    );
+
+    // Fallback for student accounts which often only see themselves
+    if (!user && students.length === 1) {
+        user = students[0];
+    }
+
+    if (user) {
+        if (user.klassen && user.klassen.length > 0) {
+            user.className = user.klassen[0].name;
+        } else if (user.classes && user.classes.length > 0) {
+            user.className = user.classes[0].name;
+        } else if (user.klassId) {
+            try {
+                let klassen = await session.untis.getKlassen();
+                let klass = klassen.find(
+                    (k) => String(k.id) === String(user.klassId)
+                );
+                if (klass) user.className = klass.name;
+            } catch (e) {
+                logger.error('Failed to get class name from klassId', e);
+            }
+        }
+
+        // Final fallback: try today's timetable
+        if (!user.className) {
+            try {
+                let today = await session.untis.getOwnTimetableForToday();
+                let lessonWithClass = today.find(
+                    (l) => l.kl && l.kl.length > 0
+                );
+                if (lessonWithClass) {
+                    user.className = lessonWithClass.kl[0].name;
+                }
+            } catch (e) {
+                logger.debug('Could not get class from today timetable');
+            }
+        }
+    }
+
     return user;
 }
 
 export async function getYearTimetable(email) {
     logger.info(`Getting timetable for year for ${email}`);
     let session = getSession(email);
+    if (!session) return null;
+    let user = await getUserData(email);
+    let grade = user?.className;
 
-    let schoolYearStart = new Date((await getSchoolYearStart()).slice(0, 10));
+    let schoolYearStart = new Date(
+        (await getSchoolYearStart(grade)).slice(0, 10)
+    );
 
     //set time to 22:00
     schoolYearStart.setHours(24);
@@ -228,8 +271,13 @@ function calculateLessonTimes(start, end) {
 export async function getAbsences(email) {
     logger.info(`Getting absences for ${email}`);
     let session = getSession(email);
+    if (!session) return null;
+    let user = await getUserData(email);
+    let grade = user?.className;
 
-    let schoolYearStart = new Date((await getSchoolYearStart()).slice(0, 10));
+    let schoolYearStart = new Date(
+        (await getSchoolYearStart(grade)).slice(0, 10)
+    );
     schoolYearStart.setDate(schoolYearStart.getDate() + 2);
 
     let timetable = await getYearTimetable(email);
